@@ -70,6 +70,7 @@ BELL_POLL_MS = 100
 
 APP_DIR = Path(__file__).resolve().parent
 LOGGER = logging.getLogger("pomodoro98")
+APP_ID = "io.github.phni.Pomodoro98"
 APP_VERSION = "0.1.0"
 
 # Sounds
@@ -100,7 +101,7 @@ ICON_ICO_FILE = ICONS_DIR / "icon.ico"
 
 class Pomodoro98(tk.Tk):
     def __init__(self):
-        super().__init__()
+        super().__init__(baseName=APP_ID, className=APP_ID)
         # define tray_icon early so attribute always exists
         self.tray_icon = None
         self._closing = False

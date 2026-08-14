@@ -1,0 +1,7 @@
+# System tray integration
+pystray
+Pillow
+
+# Optional audio backends; either backend may be used.
+simpleaudio
+pygame

@@ -1,0 +1,69 @@
+id: io.github.phni.Pomodoro98
+runtime: org.freedesktop.Platform
+runtime-version: "25.08"
+sdk: org.freedesktop.Sdk
+command: pomodoro98
+
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=pulseaudio
+
+modules:
+  - name: tcl9.0
+    buildsystem: autotools
+    subdir: unix
+    config-opts:
+      - --disable-zipfs
+    post-install:
+      - chmod 755 /app/lib/libtcl9.0.so
+    cleanup:
+      - /bin
+      - /include
+      - /lib/pkgconfig
+      - /man
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/tcl/tcl9.0.2-src.tar.gz
+        sha256: e074c6a8d9ba2cddf914ba97b6677a552d7a52a3ca102924389a05ccb249b520
+
+  - name: tk9.0
+    buildsystem: autotools
+    subdir: unix
+    config-opts:
+      - --disable-zipfs
+    post-install:
+      - chmod 755 /app/lib/libtcl9tk9.0.so
+    cleanup:
+      - /bin
+      - /include
+      - /lib/pkgconfig
+      - /man
+    sources:
+      - type: archive
+        url: https://downloads.sourceforge.net/tcl/tk9.0.2-src.tar.gz
+        sha256: 76fb852b2f167592fe8b41aa6549ce4e486dbf3b259a269646600e3894517c76
+
+  - name: tkinter
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-build-isolation --no-deps .
+    sources:
+      - type: git
+        url: https://github.com/iwalton3/tkinter-standalone.git
+        commit: 8e78e38ef0cceb44a3a0062e1c314a4ff3f981db
+
+  - name: pomodoro98
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 flatpak/pomodoro98 /app/bin/pomodoro98
+      - install -Dm644 pomodoro98_2.py /app/lib/pomodoro98/pomodoro98_2.py
+      - install -Dm644 LICENSE /app/share/licenses/io.github.phni.Pomodoro98/LICENSE
+      - install -Dm644 flatpak/io.github.phni.Pomodoro98.desktop /app/share/applications/io.github.phni.Pomodoro98.desktop
+      - install -Dm644 flatpak/io.github.phni.Pomodoro98.metainfo.xml /app/share/metainfo/io.github.phni.Pomodoro98.metainfo.xml
+      - cp -a icons sounds /app/lib/pomodoro98/
+      - mkdir -p /app/share/icons
+      - cp -a flatpak/icons/hicolor /app/share/icons/hicolor
+    sources:
+      - type: dir
+        path: .

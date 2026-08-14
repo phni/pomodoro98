@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Pomodoro98 contributors -->
+<component type="desktop-application">
+  <id>io.github.phni.Pomodoro98</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Pomodoro98</name>
+  <summary>Focus timer with a Windows 98-inspired interface</summary>
+  <developer id="io.github.phni">
+    <name>phni</name>
+  </developer>
+  <description>
+    <p>
+      Pomodoro98 is a lightweight focus timer styled after classic Windows 98
+      applications. It provides focused work and rest sessions without a
+      distracting interface.
+    </p>
+    <ul>
+      <li>Pause and resume sessions without losing time</li>
+      <li>Track progress in the window title and progress bar</li>
+      <li>Use optional sounds and a system tray indicator</li>
+      <li>Continue working when optional integrations are unavailable</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.phni.Pomodoro98.desktop</launchable>
+  <url type="homepage">https://github.com/phni/pomodoro98</url>
+  <url type="bugtracker">https://github.com/phni/pomodoro98/issues</url>
+  <url type="vcs-browser">https://github.com/phni/pomodoro98</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/phni/pomodoro98/main/docs/screenshots/pomodoro98.png</image>
+      <caption>Pomodoro98 ready to begin a focus session</caption>
+    </screenshot>
+  </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#c0c0c0</color>
+    <color type="primary" scheme_preference="dark">#000080</color>
+  </branding>
+  <releases>
+    <release version="0.1.0" date="2026-08-13">
+      <description>
+        <p>Initial production-ready release.</p>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>

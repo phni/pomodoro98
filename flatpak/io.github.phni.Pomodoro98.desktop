@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Pomodoro98
+Comment=Focus timer with a Windows 98-inspired interface
+Exec=pomodoro98
+Icon=io.github.phni.Pomodoro98
+StartupWMClass=io.github.phni.Pomodoro98
+Terminal=false
+Categories=Utility;
+Keywords=Pomodoro;Timer;Focus;Productivity;

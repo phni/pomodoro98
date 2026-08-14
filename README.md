@@ -34,6 +34,13 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 python3 -m pip install -r requirements.txt
 ```
 
+The core application uses only Python and Tk. To enable the optional system tray
+and additional audio backends, install:
+
+```bash
+python3 -m pip install -r requirements-optional.txt
+```
+
 Run the maintained application from any working directory:
 
 ```bash
@@ -42,6 +49,30 @@ python3 /path/to/pomodoro98/pomodoro98_2.py
 
 Optional sound backends are attempted in this order: `simpleaudio`, `pygame`,
 the Linux `aplay` command, and the Tk system bell.
+
+## Flatpak development
+
+The repository provides a Makefile so each development machine uses the same
+Flatpak Builder workflow. First install the build prerequisites:
+
+```bash
+make setup-flatpak
+```
+
+The host must already have Flatpak and the Flathub remote configured. Then use:
+
+```bash
+make build         # build using cached dependency modules
+make rebuild       # rebuild every module without the cache
+make lint          # metadata and source validation
+make test          # non-interactive sandbox checks
+make install       # install for the current user
+make run-flatpak   # run the installed package
+make uninstall     # remove the user-local package
+```
+
+Run `make help` for the complete command list. Build output and Builder caches
+are local to the repository and ignored by Git.
 
 ## Screenshot
 

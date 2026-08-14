@@ -1,4 +1,2 @@
-pystray
-pillow
-simpleaudio
-pygame
+# Pomodoro98 has no required third-party Python dependencies.
+# Optional tray and audio integrations are listed in requirements-optional.txt.
