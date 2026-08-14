@@ -2,7 +2,7 @@
 """
 Pomodoro 98 — Win98-styled Pomodoro timer (hardened)
 
-- Start/Stop buttons (with click beep)
+- Start/Pause and Reset buttons (with click beep)
 - Progress bar: green during focus; red when time is up and during rest
 - Always-on-top window
 - Title shows remaining time + mode (visible on taskbar)
@@ -70,6 +70,7 @@ BELL_POLL_MS = 100
 
 APP_DIR = Path(__file__).resolve().parent
 LOGGER = logging.getLogger("pomodoro98")
+APP_VERSION = "0.1.0"
 
 # Sounds
 SOUND_ENABLED = True
@@ -213,8 +214,8 @@ class Pomodoro98(tk.Tk):
 
         self.start_btn = self._win98_button(btns, "Start", command=self.start)
         self.start_btn.grid(row=0, column=0, padx=4)
-        self.stop_btn  = self._win98_button(btns, "Stop", command=self.stop)
-        self.stop_btn.grid(row=0, column=1, padx=4)
+        self.reset_btn = self._win98_button(btns, "Reset", command=self.reset)
+        self.reset_btn.grid(row=0, column=1, padx=4)
 
         # Mode label
         self.mode_label = tk.Label(body, text="Mode: Stopped",
@@ -223,31 +224,55 @@ class Pomodoro98(tk.Tk):
         self.mode_label.grid(row=3, column=0, columnspan=2, pady=(6,0))
 
     def _win98_button(self, parent, text, command):
-        f = tk.Frame(parent, bg=WIN98_BG, bd=1, relief="raised")
-        b = tk.Button(f, text=text, command=command,
-                      bg=WIN98_BG, fg=WIN98_TEXT,
-                      activebackground=WIN98_LIGHT, activeforeground=WIN98_TEXT,
-                      bd=0, padx=10, pady=2,
-                      font=("MS Sans Serif", 9))
-        b.pack()
-        return f
+        return tk.Button(
+            parent,
+            text=text,
+            command=command,
+            bg=WIN98_BG,
+            fg=WIN98_TEXT,
+            activebackground=WIN98_LIGHT,
+            activeforeground=WIN98_TEXT,
+            bd=2,
+            relief="raised",
+            padx=10,
+            pady=2,
+            font=("MS Sans Serif", 9),
+        )
 
     # ---------- Logic ----------
     def start(self):
-        # click sound (threaded)
         self._play_click_async()
 
+        if self._running:
+            self.pause()
+            return
+
+        if self.mode == "stopped":
+            self._switch_mode("focus")
+        self._running = True
+        self.start_btn.config(text="Pause")
+        self._set_mode_label()
+        self._after_id = self.after(TICK_MS, self._tick)
+
+    def pause(self):
+        """Pause the active session without changing its remaining time."""
         if not self._running:
-            if self.mode == "stopped":
-                self._switch_mode("focus")
-            self._running = True
-            self._tick()
+            return
 
-    def stop(self):
-        # click sound (threaded)
+        self._running = False
+        if self._after_id:
+            try:
+                self.after_cancel(self._after_id)
+            except tk.TclError:
+                LOGGER.debug("Scheduled timer callback was already cancelled")
+            self._after_id = None
+        self.start_btn.config(text="Start")
+        self._set_mode_label(paused=True)
+        self._update_tray()
+
+    def reset(self):
+        """Stop the current session and restore a fresh focus timer."""
         self._play_click_async()
-
-        # DO NOT close: just reset to fresh focus session
         self._running = False
         if self._after_id:
             try:
@@ -256,6 +281,7 @@ class Pomodoro98(tk.Tk):
                 LOGGER.debug("Scheduled timer callback was already cancelled")
             self._after_id = None
         self.mode = "stopped"
+        self.start_btn.config(text="Start")
         self.mode_label.config(text="Mode: Stopped")
         self.total_seconds = FOCUS_MINUTES * 60
         self.remaining = self.total_seconds
@@ -264,19 +290,29 @@ class Pomodoro98(tk.Tk):
         self._set_mode_icon()
         self._update_tray()
 
+    def _set_mode_label(self, paused=False):
+        if self.mode == "focus":
+            text = "Mode: Focus (Work)"
+        elif self.mode == "rest":
+            text = "Mode: Rest"
+        else:
+            text = "Mode: Stopped"
+        if paused and self.mode != "stopped":
+            text += " — Paused"
+        self.mode_label.config(text=text)
+
     def _switch_mode(self, new_mode):
         self.mode = new_mode
         if new_mode == "focus":
             self.total_seconds = FOCUS_MINUTES * 60
             self.remaining = self.total_seconds
-            self.mode_label.config(text="Mode: Focus (Work)")
             self._draw_progress(0.0, BAR_NORMAL)
         elif new_mode == "rest":
             self.total_seconds = REST_MINUTES * 60
             self.remaining = self.total_seconds
-            self.mode_label.config(text="Mode: Rest")
             self._draw_progress(0.0, BAR_ALERT)
 
+        self._set_mode_label()
         self._update_clock_text(self.remaining)
         self._set_mode_icon()
         self._update_tray()
@@ -306,6 +342,8 @@ class Pomodoro98(tk.Tk):
             elif self.mode == "rest":
                 self._play_event_async("rest_end")
                 self._running = False
+                self.mode = "stopped"
+                self.start_btn.config(text="Start")
                 self.mode_label.config(text="Mode: Cycle Complete (Stopped)")
                 self._set_mode_icon()
                 self._update_tray()
