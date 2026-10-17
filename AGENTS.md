@@ -1,5 +1,12 @@
 # Repository Guidelines
 
+## SDLC Conventions
+
+Branching, commit and PR format, merging, versioning, Linear tracking, and the
+Claude Code workflow are defined in
+[ADR 0001: SDLC conventions](docs/adr/0001-sdlc-conventions.md). Follow it for
+every change.
+
 ## SDD TODO Workflow
 
 At the start of each task, inspect `SDD/todo.md`. Treat every line marked with
