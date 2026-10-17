@@ -2,8 +2,7 @@
 
 A retro Windows 98–styled Pomodoro clock built with Python and Tkinter.
 
-The production entry point is `pomodoro98_2.py`. The older `pomodoro98.py`
-script is retained for historical comparison and does not receive new features.
+The application entry point is `pomodoro98_2.py`.
 
 ## Features
 

@@ -46,7 +46,7 @@ rebuild: check-flatpak
 	$(FLATPAK_BUILDER) --disable-cache --force-clean $(BUILD_DIR) $(MANIFEST)
 
 lint: check-flatpak
-	python3 -m py_compile pomodoro98.py pomodoro98_2.py
+	python3 -m py_compile pomodoro98_2.py
 	sh -n flatpak/pomodoro98
 	desktop-file-validate flatpak/$(APP_ID).desktop
 	appstreamcli validate --no-net --strict flatpak/$(APP_ID).metainfo.xml

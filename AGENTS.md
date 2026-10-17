@@ -22,7 +22,7 @@ the parent complete only after all required sub-actions are complete.
 
 ## Project Structure & Module Organization
 
-Pomodoro98 is a small, script-based Python/Tkinter application; it is not packaged as a module. `pomodoro98.py` is the main timer implementation, while `pomodoro98_2.py` is a hardened variant with additional guards around sound and tray failures. Keep shared behavior aligned when changing both variants, and explain in the pull request if a change intentionally applies to only one.
+Pomodoro98 is a small, script-based Python/Tkinter application; it is not packaged as a module. `pomodoro98_2.py` is the only entry point.
 
 Runtime assets live in `icons/` (`icon.png`, `icon_idle.png`, and `icon_rest.png`) and `sounds/` (`focus_end.wav` and `reset_end.wav`). Paths are relative to the repository root, so run the application from that directory. Dependencies are listed in `requirements.txt`; setup notes belong in `README.md`.
 
@@ -36,7 +36,7 @@ source venv/bin/activate
 python -m pip install -r requirements-optional.txt
 ```
 
-Run the primary app with `python pomodoro98.py`, or exercise the hardened variant with `python pomodoro98_2.py`. There is no build step. Before submitting changes, run `python -m py_compile pomodoro98.py pomodoro98_2.py` for a quick syntax check.
+Run the app with `python pomodoro98_2.py`. There is no build step. Before submitting changes, run `python -m py_compile pomodoro98_2.py` for a quick syntax check.
 
 ## Coding Style & Naming Conventions
 
