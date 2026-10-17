@@ -14,7 +14,7 @@ import queue
 import tkinter as tk
 from pathlib import Path
 
-from pomodoro98 import APP_ID, __version__
+from pomodoro98 import APP_ID
 from pomodoro98.sound import SoundPlayer
 from pomodoro98.timer import Event, Mode, TimerModel
 from pomodoro98.tray import TrayIcon
@@ -29,7 +29,6 @@ BELL_POLL_MS = 100
 
 APP_DIR = Path(__file__).resolve().parent
 LOGGER = logging.getLogger(__name__)
-APP_VERSION = __version__
 
 # Sounds
 SOUND_ENABLED = True

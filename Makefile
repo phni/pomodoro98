@@ -47,6 +47,7 @@ rebuild: check-flatpak
 
 lint: check-flatpak
 	python3 -m compileall -q src
+	python3 scripts/check_version.py
 	desktop-file-validate flatpak/$(APP_ID).desktop
 	appstreamcli validate --no-net --strict flatpak/$(APP_ID).metainfo.xml
 	$(FLATPAK_LINTER) manifest $(MANIFEST)

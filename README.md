@@ -164,7 +164,8 @@ Report bugs and request features through the
 
 ## Version
 
-Current development version: `0.1.0`.
+The version is defined once, as `__version__` in `src/pomodoro98/__init__.py`.
+`make lint` checks that the newest MetaInfo `<release>` matches it.
 
 ## License
 
