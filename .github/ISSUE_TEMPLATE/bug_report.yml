@@ -1,0 +1,47 @@
+name: Bug report
+description: Something in Pomodoro98 does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start a focus session
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: 2026.10.0
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How do you run it?
+      options:
+        - Flatpak
+        - From source (make run / pip install)
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Distribution and desktop
+      placeholder: Ubuntu 26.04, GNOME on Wayland
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal output
+      description: Run the app from a terminal and paste any errors.
+      render: text
