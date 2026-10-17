@@ -3,7 +3,7 @@ MANIFEST := $(APP_ID).yml
 BUILD_DIR := build-dir
 BUILDER_APP := org.flatpak.Builder
 RUNTIME_VERSION := 25.08
-FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP)
+FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP) --disable-rofiles-fuse
 FLATPAK_LINTER := flatpak run --command=flatpak-builder-lint $(BUILDER_APP)
 
 .PHONY: help check-flatpak setup-flatpak build rebuild lint test \
