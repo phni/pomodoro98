@@ -13,7 +13,7 @@ The code is a Python package in `src/pomodoro98/`; run it with `make run`,
 - **Reset** to a fresh focus session
 - **Progress bar**: green during focus, red when focus ends and during rest
 - **Always on top** window
-- **Taskbar title** shows time remaining + mode
+- **Window title** shows the current mode, e.g. `Pomodoro98 [Focus]`
 - **System tray icon** (optional via `pystray` + `Pillow`)
   - Green for focus
   - Red for rest

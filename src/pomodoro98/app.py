@@ -3,7 +3,7 @@
 - Start/Pause and Reset buttons (with click beep)
 - Progress bar: green during focus; red when time is up and during rest
 - Always-on-top window
-- Title shows remaining time + mode (visible on taskbar)
+- Window title shows the current mode, e.g. "Pomodoro98 [Focus]"
 - Optional system tray icon (green/red) with live-updating tooltip
 - Sounds: focus_end.wav when focus ends, reset_end.wav when the cycle completes,
   and click.wav on Start/Pause/Reset if present; otherwise the Tk bell
@@ -54,7 +54,7 @@ BAR_NORMAL = "#00A000"
 BAR_ALERT = "#C00000"
 
 MODE_LABELS = {
-    Mode.FOCUS: "Mode: Focus (Work)",
+    Mode.FOCUS: "Mode: Focus",
     Mode.REST: "Mode: Rest",
     Mode.STOPPED: "Mode: Stopped",
 }
@@ -284,7 +284,7 @@ class Pomodoro98(tk.Tk):
 
         mm, ss = divmod(remaining, 60)
         self.clock_label.config(text=f"{mm:02d}:{ss:02d}")
-        self.title(f"Pomodoro98 — {mm:02d}:{ss:02d} [{MODE_TITLES[mode]}]")
+        self.title(f"Pomodoro98 [{MODE_TITLES[mode]}]")
 
         bar_color = BAR_ALERT if (mode is Mode.REST or completed) else BAR_NORMAL
         self._draw_progress(t.progress, bar_color)
