@@ -3,7 +3,7 @@
 - Start/Pause and Reset buttons (with click beep)
 - Progress bar: green during focus; red when time is up and during rest
 - Always-on-top window
-- Title shows remaining time + mode (visible on taskbar)
+- Window title shows the current mode, e.g. "Pomodoro98 [Focus]"
 - Optional system tray icon (green/red) with live-updating tooltip
 - Sounds: focus_end.wav when focus ends, reset_end.wav when the cycle completes,
   and click.wav on Start/Pause/Reset if present; otherwise the Tk bell
@@ -12,6 +12,7 @@
 import logging
 import queue
 import tkinter as tk
+import tkinter.font as tkfont
 from pathlib import Path
 
 from pomodoro98 import APP_ID
@@ -26,6 +27,10 @@ FOCUS_MINUTES = 25
 REST_MINUTES = 5
 TICK_MS = 200  # how often the view polls the timer; display changes once per second
 BELL_POLL_MS = 100
+
+# Content width; wide enough that the window title and every status label fit.
+PROGRESS_MIN_WIDTH = 600
+LABEL_FONT = ("MS Sans Serif", 9)
 
 APP_DIR = Path(__file__).resolve().parent
 LOGGER = logging.getLogger(__name__)
@@ -49,7 +54,7 @@ BAR_NORMAL = "#00A000"
 BAR_ALERT = "#C00000"
 
 MODE_LABELS = {
-    Mode.FOCUS: "Mode: Focus (Work)",
+    Mode.FOCUS: "Mode: Focus",
     Mode.REST: "Mode: Rest",
     Mode.STOPPED: "Mode: Stopped",
 }
@@ -160,7 +165,12 @@ class Pomodoro98(tk.Tk):
         # Progress
         prog_frame = tk.Frame(body, bg=WIN98_BG)
         prog_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 8))
-        self.prog_width = 360
+        status_font = tkfont.Font(self, font=LABEL_FONT)
+        longest_status = max(
+            status_font.measure(text + " — Paused") for text in MODE_LABELS.values()
+        )
+        longest_status = max(longest_status, status_font.measure(CYCLE_COMPLETE_LABEL))
+        self.prog_width = max(PROGRESS_MIN_WIDTH, longest_status + 40)
         self.prog_height = 22
 
         groove = tk.Frame(prog_frame, bg=WIN98_BG, bd=2, relief="sunken")
@@ -198,7 +208,7 @@ class Pomodoro98(tk.Tk):
 
         # Mode label
         self.mode_label = tk.Label(
-            body, text="Mode: Stopped", font=("MS Sans Serif", 9), bg=WIN98_BG, fg=WIN98_TEXT
+            body, text="Mode: Stopped", font=LABEL_FONT, bg=WIN98_BG, fg=WIN98_TEXT
         )
         self.mode_label.grid(row=3, column=0, columnspan=2, pady=(6, 0))
 
@@ -215,7 +225,7 @@ class Pomodoro98(tk.Tk):
             relief="raised",
             padx=10,
             pady=2,
-            font=("MS Sans Serif", 9),
+            font=LABEL_FONT,
         )
 
     # ---------- Logic ----------
@@ -274,7 +284,8 @@ class Pomodoro98(tk.Tk):
 
         mm, ss = divmod(remaining, 60)
         self.clock_label.config(text=f"{mm:02d}:{ss:02d}")
-        self.title(f"Pomodoro98 — {mm:02d}:{ss:02d} [{MODE_TITLES[mode]}]")
+        paused = not running and mode is not Mode.STOPPED
+        self.title(f"Pomodoro98 [{'Paused' if paused else MODE_TITLES[mode]}]")
 
         bar_color = BAR_ALERT if (mode is Mode.REST or completed) else BAR_NORMAL
         self._draw_progress(t.progress, bar_color)
@@ -283,7 +294,7 @@ class Pomodoro98(tk.Tk):
             label = CYCLE_COMPLETE_LABEL
         else:
             label = MODE_LABELS[mode]
-            if not running and mode is not Mode.STOPPED:
+            if paused:
                 label += " — Paused"
         self.mode_label.config(text=label)
         self.start_btn.config(text="Pause" if running else "Start")
