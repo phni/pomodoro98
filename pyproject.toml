@@ -22,7 +22,7 @@ classifiers = [
 [project.optional-dependencies]
 tray = ["pystray", "Pillow"]
 audio = ["simpleaudio"]
-dev = ["pytest"]
+dev = ["pytest", "ruff", "pre-commit"]
 
 [project.scripts]
 pomodoro98 = "pomodoro98.app:main"
@@ -39,3 +39,12 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 pomodoro98 = ["icons/*.png", "sounds/*.wav"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import sorting, bugbear, pyupgrade, simplify
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]

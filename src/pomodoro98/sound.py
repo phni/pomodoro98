@@ -13,9 +13,11 @@ import threading
 
 LOGGER = logging.getLogger(__name__)
 
+APLAY_TIMEOUT_S = 30
+
 # Optional backends
-_SA = None      # simpleaudio
-_PYG = None     # pygame (lazy mixer init)
+_SA = None  # simpleaudio
+_PYG = None  # pygame (lazy mixer init)
 
 try:
     import simpleaudio as _SA
@@ -89,14 +91,19 @@ class SoundPlayer:
                 return True
             except Exception:
                 LOGGER.debug("pygame playback failed", exc_info=True)
-        # 3) aplay (Linux)
+        # 3) aplay (Linux). Wait for it on this worker thread so a non-zero exit
+        # (no audio device, unsupported file) still falls back to the bell.
         try:
-            subprocess.Popen(
+            result = subprocess.run(
                 ["aplay", "-q", path],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                timeout=APLAY_TIMEOUT_S,
+                check=False,
             )
-            return True
+            if result.returncode == 0:
+                return True
+            LOGGER.debug("aplay exited with status %s", result.returncode)
         except (OSError, subprocess.SubprocessError):
             LOGGER.debug("aplay playback failed", exc_info=True)
         return False

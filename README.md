@@ -124,7 +124,8 @@ After setup, run these commands from the repository directory:
 ```bash
 make build         # build using cached dependency modules
 make rebuild       # rebuild every module without the cache
-make lint          # metadata and source validation
+make lint          # Python, metadata, and manifest validation
+make lint-py       # Python checks only (no Flatpak needed)
 make test          # non-interactive sandbox checks
 make install       # install for the current user
 make run-flatpak   # run the installed package
@@ -155,6 +156,12 @@ also work on hosts where those mounts fail. Build caching remains enabled for
 
 Pomodoro98 running a focus session on Linux.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, coding conventions, and the
+pull request process, and [CHANGELOG.md](CHANGELOG.md) for release notes.
+Security issues: see [SECURITY.md](SECURITY.md).
+
 ## Maintainer
 
 Maintained by [phni](https://github.com/phni).
@@ -164,7 +171,8 @@ Report bugs and request features through the
 
 ## Version
 
-Current development version: `0.1.0`.
+The version is defined once, as `__version__` in `src/pomodoro98/__init__.py`.
+`make lint` checks that the newest MetaInfo `<release>` matches it.
 
 ## License
 

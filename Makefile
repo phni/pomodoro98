@@ -6,7 +6,7 @@ RUNTIME_VERSION := 25.08
 FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP) --disable-rofiles-fuse
 FLATPAK_LINTER := flatpak run --command=flatpak-builder-lint $(BUILDER_APP)
 
-.PHONY: help check-flatpak setup-flatpak build rebuild lint test \
+.PHONY: help check-flatpak setup-flatpak build rebuild lint lint-py lint-flatpak format test \
 	run run-flatpak install uninstall clean
 
 help:
@@ -15,7 +15,10 @@ help:
 	@echo "  make setup-flatpak  Install Builder and Freedesktop 25.08 prerequisites"
 	@echo "  make build          Build using Flatpak Builder's module cache"
 	@echo "  make rebuild        Rebuild all modules without the module cache"
-	@echo "  make lint           Validate Python, shell, desktop, AppStream, and manifest"
+	@echo "  make lint           Run lint-py and lint-flatpak"
+	@echo "  make lint-py        Ruff, syntax, and version checks (no Flatpak needed)"
+	@echo "  make lint-flatpak   Validate desktop file, AppStream, and manifest"
+	@echo "  make format         Format Python code with ruff"
 	@echo "  make test           Run non-interactive checks against the Flatpak build"
 	@echo "  make run            Run the app directly from the source tree"
 	@echo "  make install        Build and install the Flatpak for the current user"
@@ -45,8 +48,15 @@ build: check-flatpak
 rebuild: check-flatpak
 	$(FLATPAK_BUILDER) --disable-cache --force-clean $(BUILD_DIR) $(MANIFEST)
 
-lint: check-flatpak
-	python3 -m compileall -q src
+lint: lint-py lint-flatpak
+
+lint-py:
+	python3 -m compileall -q src scripts
+	ruff check src scripts
+	ruff format --check src scripts
+	python3 scripts/check_version.py
+
+lint-flatpak: check-flatpak
 	desktop-file-validate flatpak/$(APP_ID).desktop
 	appstreamcli validate --no-net --strict flatpak/$(APP_ID).metainfo.xml
 	$(FLATPAK_LINTER) manifest $(MANIFEST)
@@ -57,6 +67,10 @@ test: build
 	flatpak build $(BUILD_DIR) \
 		python3 -c 'import pomodoro98, pomodoro98.app, pomodoro98.sound as s, pomodoro98.tray as t; assert not t.TRAY_OK; assert s._SA is None; assert s._PYG is None; import pomodoro98.app as a; assert a.SOUND_FOCUS_END.exists() and a.ICON_FOCUS_FILE.exists(); print("Fallback import passed", pomodoro98.__version__)'
 	flatpak build $(BUILD_DIR) test -x /app/bin/pomodoro98
+
+format:
+	ruff format src scripts
+	ruff check --fix src scripts
 
 run:
 	PYTHONPATH=src python3 -m pomodoro98
