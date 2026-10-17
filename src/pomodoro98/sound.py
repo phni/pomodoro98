@@ -16,8 +16,8 @@ LOGGER = logging.getLogger(__name__)
 APLAY_TIMEOUT_S = 30
 
 # Optional backends
-_SA = None      # simpleaudio
-_PYG = None     # pygame (lazy mixer init)
+_SA = None  # simpleaudio
+_PYG = None  # pygame (lazy mixer init)
 
 try:
     import simpleaudio as _SA

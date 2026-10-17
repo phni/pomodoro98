@@ -90,10 +90,7 @@ class TimerModel:
     @property
     def remaining(self):
         """Whole seconds left, rounded up so 24:59.5 still shows 25:00."""
-        if self.running:
-            seconds = max(0.0, self._deadline - self._clock())
-        else:
-            seconds = self._remaining
+        seconds = max(0.0, self._deadline - self._clock()) if self.running else self._remaining
         return min(self.total_seconds, math.ceil(seconds))
 
     @property

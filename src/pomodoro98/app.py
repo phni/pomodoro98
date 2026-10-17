@@ -38,15 +38,15 @@ SOUND_REST_END = SOUNDS_DIR / "reset_end.wav"
 SOUND_CLICK = SOUNDS_DIR / "click.wav"  # optional
 
 # Win98 palette
-WIN98_BG         = "#C0C0C0"
-WIN98_DARK       = "#808080"
-WIN98_LIGHT      = "#FFFFFF"
-WIN98_TEXT       = "#000000"
-WIN98_TITLE_BG   = "#000080"
+WIN98_BG = "#C0C0C0"
+WIN98_DARK = "#808080"
+WIN98_LIGHT = "#FFFFFF"
+WIN98_TEXT = "#000000"
+WIN98_TITLE_BG = "#000080"
 WIN98_TITLE_TEXT = "#FFFFFF"
 
 BAR_NORMAL = "#00A000"
-BAR_ALERT  = "#C00000"
+BAR_ALERT = "#C00000"
 
 MODE_LABELS = {
     Mode.FOCUS: "Mode: Focus (Work)",
@@ -130,41 +130,66 @@ class Pomodoro98(tk.Tk):
         titlebar = tk.Frame(outer, bg=WIN98_TITLE_BG, height=22, bd=2, relief="flat")
         titlebar.grid(row=0, column=0, sticky="ew")
         titlebar.grid_columnconfigure(0, weight=1)
-        title = tk.Label(titlebar, text="Pomodoro98", fg=WIN98_TITLE_TEXT, bg=WIN98_TITLE_BG,
-                         anchor="w", padx=6, font=("MS Sans Serif", 9, "bold"))
+        title = tk.Label(
+            titlebar,
+            text="Pomodoro98",
+            fg=WIN98_TITLE_TEXT,
+            bg=WIN98_TITLE_BG,
+            anchor="w",
+            padx=6,
+            font=("MS Sans Serif", 9, "bold"),
+        )
         title.grid(row=0, column=0, sticky="ew")
 
         body = tk.Frame(outer, bg=WIN98_BG, bd=2, relief="flat")
         body.grid(row=1, column=0, padx=8, pady=8)
 
         clock_frame = tk.Frame(body, bg=WIN98_BG, bd=2, relief="sunken")
-        clock_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=2, pady=(0,8))
-        self.clock_label = tk.Label(clock_frame,
-                                    text="00:00",
-                                    font=("MS Sans Serif", 28, "bold"),
-                                    bg=WIN98_BG, fg=WIN98_TEXT,
-                                    padx=20, pady=8)
+        clock_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=2, pady=(0, 8))
+        self.clock_label = tk.Label(
+            clock_frame,
+            text="00:00",
+            font=("MS Sans Serif", 28, "bold"),
+            bg=WIN98_BG,
+            fg=WIN98_TEXT,
+            padx=20,
+            pady=8,
+        )
         self.clock_label.pack()
 
         # Progress
         prog_frame = tk.Frame(body, bg=WIN98_BG)
-        prog_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0,8))
+        prog_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 8))
         self.prog_width = 360
         self.prog_height = 22
 
         groove = tk.Frame(prog_frame, bg=WIN98_BG, bd=2, relief="sunken")
         groove.pack()
-        self.canvas = tk.Canvas(groove, width=self.prog_width, height=self.prog_height,
-                                highlightthickness=0, bg=WIN98_BG)
+        self.canvas = tk.Canvas(
+            groove,
+            width=self.prog_width,
+            height=self.prog_height,
+            highlightthickness=0,
+            bg=WIN98_BG,
+        )
         self.canvas.pack()
-        self.canvas.create_rectangle(1, 1, self.prog_width-1, self.prog_height-1,
-                                     outline=WIN98_DARK, fill=WIN98_LIGHT, width=1, tags="bg")
-        self.bar = self.canvas.create_rectangle(2, 2, 2, self.prog_height-2,
-                                                outline="", fill=BAR_NORMAL, tags="bar")
+        self.canvas.create_rectangle(
+            1,
+            1,
+            self.prog_width - 1,
+            self.prog_height - 1,
+            outline=WIN98_DARK,
+            fill=WIN98_LIGHT,
+            width=1,
+            tags="bg",
+        )
+        self.bar = self.canvas.create_rectangle(
+            2, 2, 2, self.prog_height - 2, outline="", fill=BAR_NORMAL, tags="bar"
+        )
 
         # Buttons
         btns = tk.Frame(body, bg=WIN98_BG)
-        btns.grid(row=2, column=0, columnspan=2, pady=(4,0))
+        btns.grid(row=2, column=0, columnspan=2, pady=(4, 0))
 
         self.start_btn = self._win98_button(btns, "Start", command=self.start)
         self.start_btn.grid(row=0, column=0, padx=4)
@@ -172,10 +197,10 @@ class Pomodoro98(tk.Tk):
         self.reset_btn.grid(row=0, column=1, padx=4)
 
         # Mode label
-        self.mode_label = tk.Label(body, text="Mode: Stopped",
-                                   font=("MS Sans Serif", 9),
-                                   bg=WIN98_BG, fg=WIN98_TEXT)
-        self.mode_label.grid(row=3, column=0, columnspan=2, pady=(6,0))
+        self.mode_label = tk.Label(
+            body, text="Mode: Stopped", font=("MS Sans Serif", 9), bg=WIN98_BG, fg=WIN98_TEXT
+        )
+        self.mode_label.grid(row=3, column=0, columnspan=2, pady=(6, 0))
 
     def _win98_button(self, parent, text, command):
         return tk.Button(
@@ -291,9 +316,7 @@ class Pomodoro98(tk.Tk):
             LOGGER.debug("Tk bell is unavailable", exc_info=True)
         finally:
             if not self._closing:
-                self._bell_poll_id = self.after(
-                    BELL_POLL_MS, self._process_bell_requests
-                )
+                self._bell_poll_id = self.after(BELL_POLL_MS, self._process_bell_requests)
 
     def _play_sound_async(self, path):
         self._sound.play_async(path)
