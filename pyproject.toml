@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pomodoro98"
+dynamic = ["version"]
+description = "A Windows 98-styled Pomodoro timer built with Tkinter"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "phni" }]
+requires-python = ">=3.10"
+dependencies = []
+classifiers = [
+    "Environment :: X11 Applications",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+tray = ["pystray", "Pillow"]
+audio = ["simpleaudio"]
+dev = ["pytest"]
+
+[project.scripts]
+pomodoro98 = "pomodoro98.app:main"
+
+[project.urls]
+Homepage = "https://github.com/phni/pomodoro98"
+Issues = "https://github.com/phni/pomodoro98/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "pomodoro98.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pomodoro98 = ["icons/*.png", "sounds/*.wav"]

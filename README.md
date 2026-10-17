@@ -2,8 +2,8 @@
 
 A retro Windows 98–styled Pomodoro clock built with Python and Tkinter.
 
-The production entry point is `pomodoro98_2.py`. The older `pomodoro98.py`
-script is retained for historical comparison and does not receive new features.
+The code is a Python package in `src/pomodoro98/`; run it with `make run`,
+`python3 -m pomodoro98`, or the installed `pomodoro98` command.
 
 ## Features
 
@@ -66,23 +66,19 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-The core application uses only Python and Tk, so `requirements.txt` intentionally
-contains no package entries. Tkinter is supplied by your Python installation or
-operating system, not pip. To enable the optional system tray and additional
-audio backends, install:
+The core application uses only Python and Tk, so it has no required pip
+dependencies. Tkinter is supplied by your Python installation or operating
+system, not pip. Install the app in editable mode with the optional system tray
+and audio extras, then run the `pomodoro98` command:
 
 ```bash
-python3 -m pip install -r requirements-optional.txt
-make run
+python3 -m pip install -e '.[tray,audio,dev]'
+pomodoro98
 ```
 
-Activate `venv` again in each new terminal when you want these optional packages.
-
-Run the maintained application from any working directory:
-
-```bash
-python3 /path/to/pomodoro98/pomodoro98_2.py
-```
+`requirements-optional.txt` lists the same optional packages for setups that
+prefer a requirements file. Activate `venv` again in each new terminal when you
+want these optional packages.
 
 From the repository directory, you can also use `make run`. If it reports
 `No module named tkinter`, install the OS Tkinter package above. Installing the

@@ -17,7 +17,7 @@ help:
 	@echo "  make rebuild        Rebuild all modules without the module cache"
 	@echo "  make lint           Validate Python, shell, desktop, AppStream, and manifest"
 	@echo "  make test           Run non-interactive checks against the Flatpak build"
-	@echo "  make run            Run pomodoro98_2.py directly from the source tree"
+	@echo "  make run            Run the app directly from the source tree"
 	@echo "  make install        Build and install the Flatpak for the current user"
 	@echo "  make run-flatpak    Run the installed Flatpak"
 	@echo "  make uninstall      Remove the user-local Flatpak and debug extension"
@@ -46,8 +46,7 @@ rebuild: check-flatpak
 	$(FLATPAK_BUILDER) --disable-cache --force-clean $(BUILD_DIR) $(MANIFEST)
 
 lint: check-flatpak
-	python3 -m py_compile pomodoro98.py pomodoro98_2.py
-	sh -n flatpak/pomodoro98
+	python3 -m compileall -q src
 	desktop-file-validate flatpak/$(APP_ID).desktop
 	appstreamcli validate --no-net --strict flatpak/$(APP_ID).metainfo.xml
 	$(FLATPAK_LINTER) manifest $(MANIFEST)
@@ -56,10 +55,11 @@ test: build
 	flatpak build $(BUILD_DIR) \
 		python3 -c 'import tkinter; print("Tkinter import passed", tkinter.TclVersion, tkinter.TkVersion)'
 	flatpak build $(BUILD_DIR) \
-		python3 -c 'import sys; sys.path.insert(0, "/app/lib/pomodoro98"); import pomodoro98_2 as app; assert not app._TRAY_OK; assert app._SA is None; assert app._PYG is None; print("Fallback import passed", app.APP_VERSION)'
+		python3 -c 'import pomodoro98, pomodoro98.app, pomodoro98.sound as s, pomodoro98.tray as t; assert not t.TRAY_OK; assert s._SA is None; assert s._PYG is None; import pomodoro98.app as a; assert a.SOUND_FOCUS_END.exists() and a.ICON_FOCUS_FILE.exists(); print("Fallback import passed", pomodoro98.__version__)'
+	flatpak build $(BUILD_DIR) test -x /app/bin/pomodoro98
 
 run:
-	python3 pomodoro98_2.py
+	PYTHONPATH=src python3 -m pomodoro98
 
 install: check-flatpak
 	$(FLATPAK_BUILDER) --user --install --force-clean $(BUILD_DIR) $(MANIFEST)

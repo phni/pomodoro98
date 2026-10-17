@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec python3 /app/lib/pomodoro98/pomodoro98_2.py "$@"

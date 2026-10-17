@@ -7,40 +7,48 @@ Claude Code workflow are defined in
 [ADR 0001: SDLC conventions](docs/adr/0001-sdlc-conventions.md). Follow it for
 every change.
 
-## SDD TODO Workflow
+## Task Workflow
 
-At the start of each task, inspect `SDD/todo.md`. Treat every line marked with
-`[+]` as an active instruction and take action on it as part of the current
-work. When an active item requires information or a material decision that is
-not available in the repository, ask the user for that input instead of making
-an unsafe assumption. Leave `[ ]` items untouched unless the user requests
-them. After completing an active item, change its marker from `[+]` to `[x]` and
-record the implementation under `sdd/changes/`. Whenever work reveals a
-pending action, blocker, or incomplete portion of a TODO, add it immediately to
-`SDD/todo.md` as an indented checklist sub-action beneath its parent item. Mark
-the parent complete only after all required sub-actions are complete.
+Planned work lives only in Linear (project **SDLC Pomodoro98**, team key `R3D`).
+Start every task from its Linear issue and reference the key in the PR title.
+When an issue needs information or a material decision that is not in the
+repository or the issue, ask the maintainer instead of making an unsafe
+assumption. If the work reveals a follow-up, blocker, or out-of-scope change,
+create a Linear issue for it (or comment on the current one) rather than
+noting it in the repository. Record what changed and how it was verified in the
+PR description; user-visible changes also go in `CHANGELOG.md`. Older change
+notes are archived in `docs/history/`, and design decisions are recorded as
+ADRs in `docs/adr/`.
 
 ## Project Structure & Module Organization
 
-Pomodoro98 is a small, script-based Python/Tkinter application; it is not packaged as a module. `pomodoro98.py` is the main timer implementation, while `pomodoro98_2.py` is a hardened variant with additional guards around sound and tray failures. Keep shared behavior aligned when changing both variants, and explain in the pull request if a change intentionally applies to only one.
+Pomodoro98 is a Python/Tkinter application packaged with `pyproject.toml` (src layout):
 
-Runtime assets live in `icons/` (`icon.png`, `icon_idle.png`, and `icon_rest.png`) and `sounds/` (`focus_end.wav` and `reset_end.wav`). Paths are relative to the repository root, so run the application from that directory. Dependencies are listed in `requirements.txt`; setup notes belong in `README.md`.
+- `src/pomodoro98/timer.py`: `TimerModel` state machine and `Mode` enum, independent of Tk and driven by an injectable clock so it can be unit tested.
+- `src/pomodoro98/app.py`: Tk window that renders `TimerModel`; `main()` is the `pomodoro98` console script.
+- `src/pomodoro98/sound.py`: non-blocking sound playback with optional `simpleaudio`/`pygame`/`aplay` backends.
+- `src/pomodoro98/tray.py`: optional `pystray` system tray icon.
+- `src/pomodoro98/icons/` and `src/pomodoro98/sounds/`: runtime assets shipped as package data and resolved relative to the package, so the app runs from any working directory.
+- `flatpak/` and `io.github.phni.Pomodoro98.yml`: Flatpak desktop file, MetaInfo, icons, and manifest.
+- `docs/adr/`: architecture decision records; `docs/history/`: archived change notes.
+
+Setup notes belong in `README.md`.
 
 ## Build, Test, and Development Commands
 
-Create an isolated environment and install optional tray/audio support:
+Create an isolated environment and install the app with its optional and development extras:
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
-python -m pip install -r requirements-optional.txt
+python3 -m pip install -e '.[tray,audio,dev]'
 ```
 
-Run the primary app with `python pomodoro98.py`, or exercise the hardened variant with `python pomodoro98_2.py`. There is no build step. Before submitting changes, run `python -m py_compile pomodoro98.py pomodoro98_2.py` for a quick syntax check.
+Run the app with `make run` (source tree) or `pomodoro98` (installed). There is no build step for local runs. Before submitting changes, run `python3 -m compileall -q src` for a quick syntax check; `make lint` and `make test` also validate and build the Flatpak.
 
 ## Coding Style & Naming Conventions
 
-Follow PEP 8 with four-space indentation. Use `snake_case` for functions, methods, and local variables; `UPPER_CASE` for configuration constants; and `CapWords` for classes. Private implementation helpers use a leading underscore, as in `_update_tray`. Keep Tkinter state changes on the main thread and isolate blocking audio or tray work. Preserve the existing grouping of configuration, UI, timer logic, sound, and tray methods. No formatter or linter is currently configured, so keep diffs focused and match nearby style.
+Follow PEP 8 with four-space indentation. Use `snake_case` for functions, methods, and local variables; `UPPER_CASE` for configuration constants; and `CapWords` for classes. Private implementation helpers use a leading underscore, as in `_update_tray`. Keep Tkinter state changes on the main thread and isolate blocking audio or tray work. Keep timer rules in `timer.py` (no Tk imports), sound and tray code in their own modules, and `app.py` as a thin view. No formatter or linter is currently configured, so keep diffs focused and match nearby style.
 
 ## Testing Guidelines
 
