@@ -22,25 +22,32 @@ ADRs in `docs/adr/`.
 
 ## Project Structure & Module Organization
 
-Pomodoro98 is a small, script-based Python/Tkinter application; it is not packaged as a module. `pomodoro98_2.py` is the only entry point.
+Pomodoro98 is a Python/Tkinter application packaged with `pyproject.toml` (src layout):
 
-Runtime assets live in `icons/` (`icon.png`, `icon_idle.png`, and `icon_rest.png`) and `sounds/` (`focus_end.wav` and `reset_end.wav`). Paths are relative to the repository root, so run the application from that directory. Dependencies are listed in `requirements.txt`; setup notes belong in `README.md`.
+- `src/pomodoro98/app.py`: Tk window, UI, and timer logic; `main()` is the `pomodoro98` console script.
+- `src/pomodoro98/sound.py`: non-blocking sound playback with optional `simpleaudio`/`pygame`/`aplay` backends.
+- `src/pomodoro98/tray.py`: optional `pystray` system tray icon.
+- `src/pomodoro98/icons/` and `src/pomodoro98/sounds/`: runtime assets shipped as package data and resolved relative to the package, so the app runs from any working directory.
+- `flatpak/` and `io.github.phni.Pomodoro98.yml`: Flatpak desktop file, MetaInfo, icons, and manifest.
+- `docs/adr/`: architecture decision records; `docs/history/`: archived change notes.
+
+Setup notes belong in `README.md`.
 
 ## Build, Test, and Development Commands
 
-Create an isolated environment and install optional tray/audio support:
+Create an isolated environment and install the app with its optional and development extras:
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
-python -m pip install -r requirements-optional.txt
+python3 -m pip install -e '.[tray,audio,dev]'
 ```
 
-Run the app with `python pomodoro98_2.py`. There is no build step. Before submitting changes, run `python -m py_compile pomodoro98_2.py` for a quick syntax check.
+Run the app with `make run` (source tree) or `pomodoro98` (installed). There is no build step for local runs. Before submitting changes, run `python3 -m compileall -q src` for a quick syntax check; `make lint` and `make test` also validate and build the Flatpak.
 
 ## Coding Style & Naming Conventions
 
-Follow PEP 8 with four-space indentation. Use `snake_case` for functions, methods, and local variables; `UPPER_CASE` for configuration constants; and `CapWords` for classes. Private implementation helpers use a leading underscore, as in `_update_tray`. Keep Tkinter state changes on the main thread and isolate blocking audio or tray work. Preserve the existing grouping of configuration, UI, timer logic, sound, and tray methods. No formatter or linter is currently configured, so keep diffs focused and match nearby style.
+Follow PEP 8 with four-space indentation. Use `snake_case` for functions, methods, and local variables; `UPPER_CASE` for configuration constants; and `CapWords` for classes. Private implementation helpers use a leading underscore, as in `_update_tray`. Keep Tkinter state changes on the main thread and isolate blocking audio or tray work. Keep sound and tray code in their own modules, and preserve the grouping of configuration, UI, and timer logic in `app.py`. No formatter or linter is currently configured, so keep diffs focused and match nearby style.
 
 ## Testing Guidelines
 

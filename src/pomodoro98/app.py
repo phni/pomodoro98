@@ -1,64 +1,22 @@
-#!/usr/bin/env python3
-"""
-Pomodoro98 — Win98-styled Pomodoro timer (hardened)
+"""Tk user interface for Pomodoro98.
 
 - Start/Pause and Reset buttons (with click beep)
 - Progress bar: green during focus; red when time is up and during rest
 - Always-on-top window
 - Title shows remaining time + mode (visible on taskbar)
 - Optional system tray icon (green/red) with live-updating tooltip
-- Sounds:
-    * focus_end.wav when focus ends (work -> rest)
-    * reset_end.wav when rest ends (cycle complete)
-    * click.wav on Start/Stop (optional; falls back to bell)
-
-HARDENING:
-- All sound playback done in a background thread with try/except
-  so backend errors can’t kill Tk’s mainloop.
-- Robust guards around tray updates.
-
-Sound backends tried in order (non-blocking):
-  simpleaudio -> pygame -> system 'aplay' -> Tk bell
-
-Optional installs:
-    pip install pystray pillow
-    pip install simpleaudio   # OR
-    pip install pygame
-
-Assets:
-  icons/: icon.png, icon_rest.png, icon_idle.png, icon.ico
-  sounds/: focus_end.wav, reset_end.wav, click.wav (optional)
+- Sounds: focus_end.wav when focus ends, reset_end.wav when the cycle completes,
+  and click.wav on Start/Pause/Reset if present; otherwise the Tk bell
 """
 
 import logging
 import queue
-import subprocess
-import threading
 import tkinter as tk
 from pathlib import Path
 
-# ---------- Optional deps ----------
-# Tray (optional)
-try:
-    import pystray
-    from PIL import Image, ImageDraw
-    _TRAY_OK = True
-except Exception:
-    _TRAY_OK = False
-
-# Sound backends (optional)
-_SA = None      # simpleaudio
-_PYG = None     # pygame (lazy mixer init)
-
-try:
-    import simpleaudio as _SA
-except Exception:
-    _SA = None
-
-try:
-    import pygame as _PYG
-except Exception:
-    _PYG = None
+from pomodoro98 import APP_ID, __version__
+from pomodoro98.sound import SoundPlayer
+from pomodoro98.tray import TrayIcon
 
 # ------------------------------
 # Config
@@ -69,9 +27,8 @@ TICK_MS = 1000
 BELL_POLL_MS = 100
 
 APP_DIR = Path(__file__).resolve().parent
-LOGGER = logging.getLogger("pomodoro98")
-APP_ID = "io.github.phni.Pomodoro98"
-APP_VERSION = "0.1.0"
+LOGGER = logging.getLogger(__name__)
+APP_VERSION = __version__
 
 # Sounds
 SOUND_ENABLED = True
@@ -96,17 +53,15 @@ ICONS_DIR = APP_DIR / "icons"
 ICON_FOCUS_FILE = ICONS_DIR / "icon.png"
 ICON_REST_FILE = ICONS_DIR / "icon_rest.png"
 ICON_IDLE_FILE = ICONS_DIR / "icon_idle.png"
-ICON_ICO_FILE = ICONS_DIR / "icon.ico"
 
 
 class Pomodoro98(tk.Tk):
     def __init__(self):
         super().__init__(baseName=APP_ID, className=APP_ID)
-        # define tray_icon early so attribute always exists
-        self.tray_icon = None
         self._closing = False
         self._bell_requests = queue.SimpleQueue()
-        self._sound_lock = threading.Lock()
+        self._sound = SoundPlayer(on_failure=self._request_bell, enabled=SOUND_ENABLED)
+        self._tray = TrayIcon("Pomodoro98", "Pomodoro98")
 
         self.title("Pomodoro98")
         self.configure(bg=WIN98_BG)
@@ -130,21 +85,14 @@ class Pomodoro98(tk.Tk):
         self._bell_poll_id = self.after(BELL_POLL_MS, self._process_bell_requests)
 
         # Tray (optional)
-        if _TRAY_OK:
-            self._start_tray_icon()
-            self._update_tray()
+        self._tray.start()
+        self._update_tray()
 
     # ---------- Icons ----------
     def _load_window_icons(self):
         self._icon_focus_img = None
         self._icon_rest_img = None
         self._icon_idle_img = None
-
-        if ICON_ICO_FILE.exists():
-            try:
-                self.iconbitmap(str(ICON_ICO_FILE))
-            except Exception:
-                LOGGER.exception("Failed to load window icon: %s", ICON_ICO_FILE)
 
         try:
             if ICON_FOCUS_FILE.exists():
@@ -364,47 +312,7 @@ class Pomodoro98(tk.Tk):
         self.canvas.coords(self.bar, 2, 2, x2, self.prog_height - 2)
         self.canvas.itemconfig(self.bar, fill=color)
 
-    # ---------- Sound (threaded) ----------
-    def _ensure_pygame(self):
-        if _PYG:
-            try:
-                if not _PYG.mixer.get_init():
-                    _PYG.mixer.init()
-                return True
-            except Exception:
-                return False
-        return False
-
-    def _play_backend(self, path):
-        path = str(path)
-        # 1) simpleaudio
-        if _SA:
-            try:
-                wave = _SA.WaveObject.from_wave_file(path)
-                wave.play()  # non-blocking
-                return True
-            except Exception:
-                LOGGER.debug("simpleaudio playback failed", exc_info=True)
-        # 2) pygame
-        if self._ensure_pygame():
-            try:
-                snd = _PYG.mixer.Sound(path)
-                snd.play()
-                return True
-            except Exception:
-                LOGGER.debug("pygame playback failed", exc_info=True)
-        # 3) aplay (Linux)
-        try:
-            subprocess.Popen(
-                ["aplay", "-q", path],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            return True
-        except (OSError, subprocess.SubprocessError):
-            LOGGER.debug("aplay playback failed", exc_info=True)
-        return False
-
+    # ---------- Sound ----------
     def _request_bell(self):
         """Queue a bell for Tk's main thread instead of calling Tk from a worker."""
         if not self._closing:
@@ -426,20 +334,7 @@ class Pomodoro98(tk.Tk):
                 )
 
     def _play_sound_async(self, path):
-        if not SOUND_ENABLED or self._closing:
-            return
-
-        def run():
-            try:
-                with self._sound_lock:
-                    if path.exists() and self._play_backend(path):
-                        return
-                self._request_bell()
-            except Exception:
-                LOGGER.exception("Unexpected sound playback failure: %s", path)
-                self._request_bell()
-
-        threading.Thread(target=run, daemon=True, name="pomodoro98-audio").start()
+        self._sound.play_async(path)
 
     def _play_click_async(self):
         self._play_sound_async(SOUND_CLICK)
@@ -449,69 +344,8 @@ class Pomodoro98(tk.Tk):
         self._play_sound_async(path)
 
     # ---------- System Tray (optional) ----------
-    def _make_tray_image(self, color_rgba):
-        if not _TRAY_OK:
-            return None
-        size = 24
-        bg = (192, 192, 192, 255)
-        dark = (128, 128, 128, 255)
-        light = (255, 255, 255, 255)
-        img = Image.new("RGBA", (size, size), bg)
-        d = ImageDraw.Draw(img)
-        d.rectangle([0, 0, size-1, size-1], outline=dark)
-        d.rectangle([1, 1, size-2, size-2], outline=light)
-        d.rectangle([2, 2, size-3, size-3], outline=dark)
-        d.rectangle([3, 3, size-4, size-4], outline=light)
-        pad = 5
-        d.rectangle([pad, pad, size-pad-1, size-pad-1], fill=(224,224,224,255), outline=dark)
-        d.line([pad, pad, size-pad-1, pad], fill=light)
-        d.line([pad, pad, pad, size-pad-1], fill=light)
-        inner_pad = 2
-        d.rectangle([pad+inner_pad, pad+inner_pad, size-pad-1-inner_pad, size-pad-1-inner_pad],
-                    fill=color_rgba)
-        return img
-
-    def _start_tray_icon(self):
-        try:
-            img = self._make_tray_image((0, 160, 0, 255))
-            self.tray_icon = pystray.Icon("Pomodoro98", img, "Pomodoro98")
-            threading.Thread(target=self.tray_icon.run, daemon=True).start()
-        except Exception:
-            # If tray fails to start, keep going; app should not exit.
-            LOGGER.exception("Failed to start system tray integration")
-            self.tray_icon = None
-
     def _update_tray(self):
-        if not _TRAY_OK:
-            return
-        tray = getattr(self, "tray_icon", None)
-        if not tray:
-            return
-        try:
-            if self.mode == "rest":
-                color = (192, 0, 0, 255); mode_text = "Rest"
-            elif self.mode == "focus":
-                color = (0, 160, 0, 255); mode_text = "Focus"
-            else:
-                color = (128, 128, 128, 255); mode_text = "Stopped"
-
-            mm = self.remaining // 60
-            ss = self.remaining % 60
-            tray.icon = self._make_tray_image(color)
-            tray.title = f"{mode_text}: {mm:02d}:{ss:02d} remaining"
-        except Exception:
-            # Never let tray errors kill the app
-            LOGGER.exception("Failed to update system tray state")
-
-    def _shutdown_tray(self):
-        tray = getattr(self, "tray_icon", None)
-        if tray:
-            try:
-                tray.stop()
-            except Exception:
-                LOGGER.exception("Failed to stop system tray integration")
-            finally:
-                self.tray_icon = None
+        self._tray.update(self.mode, self.remaining)
 
     def shutdown(self):
         """Cancel Tk callbacks and optional integrations before closing."""
@@ -527,20 +361,15 @@ class Pomodoro98(tk.Tk):
                     LOGGER.debug("Callback was already cancelled during shutdown")
         self._after_id = None
         self._bell_poll_id = None
-        self._shutdown_tray()
-        if _PYG:
-            try:
-                if _PYG.mixer.get_init():
-                    _PYG.mixer.quit()
-            except Exception:
-                LOGGER.exception("Failed to shut down pygame audio")
+        self._tray.stop()
+        self._sound.shutdown()
         self.destroy()
 
 
 # ------------------------------
 # Run
 # ------------------------------
-if __name__ == "__main__":
+def main():
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -553,9 +382,5 @@ if __name__ == "__main__":
     y = (app.winfo_screenheight() // 3) - (h // 2)
     app.geometry(f"+{x}+{y}")
 
-    def on_close():
-        # Only on window X; Stop button never closes the app
-        app.shutdown()
-
-    app.protocol("WM_DELETE_WINDOW", on_close)
+    app.protocol("WM_DELETE_WINDOW", app.shutdown)
     app.mainloop()
