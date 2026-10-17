@@ -24,6 +24,8 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ### Fixed
 
+- `make install` installs with the host `flatpak`, so Pomodoro98 appears in
+  the desktop launcher.
 - The Tk bell now sounds when the `aplay` fallback fails, for example when no
   audio device is available.
 

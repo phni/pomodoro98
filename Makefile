@@ -1,6 +1,8 @@
 APP_ID := io.github.phni.Pomodoro98
 MANIFEST := $(APP_ID).yml
 BUILD_DIR := build-dir
+REPO_DIR := repo
+LOCAL_REMOTE := pomodoro98-local
 BUILDER_APP := org.flatpak.Builder
 RUNTIME_VERSION := 25.08
 FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP) --disable-rofiles-fuse
@@ -75,8 +77,14 @@ format:
 run:
 	PYTHONPATH=src python3 -m pomodoro98
 
+# Build into a local repo with Builder, then install with the host's flatpak.
+# Installing from inside the Builder sandbox would export a desktop file whose
+# Exec is the sandbox path /app/bin/flatpak, which hides the app from launchers.
 install: check-flatpak
-	$(FLATPAK_BUILDER) --user --install --force-clean $(BUILD_DIR) $(MANIFEST)
+	$(FLATPAK_BUILDER) --force-clean --repo=$(REPO_DIR) $(BUILD_DIR) $(MANIFEST)
+	flatpak remote-add --user --if-not-exists --no-gpg-verify \
+		$(LOCAL_REMOTE) $(CURDIR)/$(REPO_DIR)
+	flatpak install --user -y --reinstall $(LOCAL_REMOTE) $(APP_ID)
 
 run-flatpak:
 	flatpak run $(APP_ID)
@@ -84,7 +92,8 @@ run-flatpak:
 uninstall:
 	-flatpak uninstall --user -y $(APP_ID)
 	-flatpak uninstall --user -y $(APP_ID).Debug
+	-flatpak remote-delete --user $(LOCAL_REMOTE)
 
 clean:
 	flatpak run --command=sh $(BUILDER_APP) -c \
-		'rm -rf /run/host/$(CURDIR)/$(BUILD_DIR) /run/host/$(CURDIR)/.flatpak-builder'
+		'rm -rf $(CURDIR)/$(BUILD_DIR) $(CURDIR)/$(REPO_DIR) $(CURDIR)/.flatpak-builder'
