@@ -148,6 +148,7 @@ also work on hosts where those mounts fail. Build caching remains enabled for
 | Flatpak is missing or the Flathub remote is missing | Complete the first-time Flatpak setup above. |
 | Builder, runtime, or SDK is not installed | Run `make setup-flatpak` before `make build`. |
 | `Failure spawning rofiles-fuse` | Use the updated Makefile, which passes `--disable-rofiles-fuse` for builds and installs. |
+| App missing from the desktop launcher after `make install` | Run `make install` again with the current Makefile; older versions installed from inside the Builder sandbox and exported a broken launcher. |
 | `no display name` or cannot connect to the display | Run the app from a graphical desktop session. |
 
 ## Screenshot
