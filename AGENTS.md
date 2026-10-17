@@ -26,7 +26,7 @@ Create an isolated environment and install optional tray/audio support:
 ```bash
 python -m venv venv
 source venv/bin/activate
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-optional.txt
 ```
 
 Run the primary app with `python pomodoro98.py`, or exercise the hardened variant with `python pomodoro98_2.py`. There is no build step. Before submitting changes, run `python -m py_compile pomodoro98.py pomodoro98_2.py` for a quick syntax check.

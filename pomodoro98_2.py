@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pomodoro 98 — Win98-styled Pomodoro timer (hardened)
+Pomodoro98 — Win98-styled Pomodoro timer (hardened)
 
 - Start/Pause and Reset buttons (with click beep)
 - Progress bar: green during focus; red when time is up and during rest
@@ -108,7 +108,7 @@ class Pomodoro98(tk.Tk):
         self._bell_requests = queue.SimpleQueue()
         self._sound_lock = threading.Lock()
 
-        self.title("Pomodoro 98")
+        self.title("Pomodoro98")
         self.configure(bg=WIN98_BG)
         self.resizable(False, False)
         self.attributes("-topmost", True)
@@ -177,7 +177,7 @@ class Pomodoro98(tk.Tk):
         titlebar = tk.Frame(outer, bg=WIN98_TITLE_BG, height=22, bd=2, relief="flat")
         titlebar.grid(row=0, column=0, sticky="ew")
         titlebar.grid_columnconfigure(0, weight=1)
-        title = tk.Label(titlebar, text="Pomodoro 98", fg=WIN98_TITLE_TEXT, bg=WIN98_TITLE_BG,
+        title = tk.Label(titlebar, text="Pomodoro98", fg=WIN98_TITLE_TEXT, bg=WIN98_TITLE_BG,
                          anchor="w", padx=6, font=("MS Sans Serif", 9, "bold"))
         title.grid(row=0, column=0, sticky="ew")
 
@@ -355,7 +355,7 @@ class Pomodoro98(tk.Tk):
         ss = seconds % 60
         self.clock_label.config(text=f"{mm:02d}:{ss:02d}")
         mode_text = "Focus" if self.mode == "focus" else ("Rest" if self.mode == "rest" else "Stopped")
-        self.title(f"Pomodoro 98 — {mm:02d}:{ss:02d} [{mode_text}]")
+        self.title(f"Pomodoro98 — {mm:02d}:{ss:02d} [{mode_text}]")
         self._update_tray()
 
     def _draw_progress(self, pct, color):
@@ -474,7 +474,7 @@ class Pomodoro98(tk.Tk):
     def _start_tray_icon(self):
         try:
             img = self._make_tray_image((0, 160, 0, 255))
-            self.tray_icon = pystray.Icon("Pomodoro98", img, "Pomodoro 98")
+            self.tray_icon = pystray.Icon("Pomodoro98", img, "Pomodoro98")
             threading.Thread(target=self.tray_icon.run, daemon=True).start()
         except Exception:
             # If tray fails to start, keep going; app should not exit.

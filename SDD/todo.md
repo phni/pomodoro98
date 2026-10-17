@@ -2,6 +2,11 @@
 
 ## 1. Project Readiness
 
+- [x] Fix local source launch when Tkinter is missing.
+  - [x] Confirm the system Python lacks Tkinter and document the Ubuntu prerequisite.
+  - [x] Install `python3-tk` using interactive sudo in the user's terminal; automated installation requires authentication. (`python3-tk` 3.14.3)
+  - [x] Verify `make run` opens the application after installation.
+
 - [x] Choose the canonical entry point (`pomodoro98.py` or `pomodoro98_2.py`) and remove or clearly document the other variant. (`pomodoro98_2.py`)
 - [x] Add an open-source `LICENSE`; record its SPDX identifier for AppStream metadata. (`MIT`)
 - [x] Complete `README.md` with run instructions, supported Linux desktops, screenshots, and maintainer contact details.
@@ -36,10 +41,16 @@
 
 ## 4. Build, Validate, and Test
 
+- [x] Fix `make build` failing when rofiles-fuse cannot mount on the host.
+  - [x] Reproduce the `fusermount` file-descriptor error.
+  - [x] Use the supported non-FUSE build mode for build, rebuild, and install.
+  - [x] Complete a build and verify the packaged Python/Tkinter import. (`make test`: Tcl/Tk 9.0, fallback import passed)
+
 - [x] Install Flatpak, `flatpak-builder`, the Flathub remote, and `org.flatpak.Builder` on a Linux test system. (`org.flatpak.Builder` 1.4.9)
   - [x] Add repeatable Make targets for prerequisite setup, building, testing, source runs, user-local installation, installed-app runs, and uninstalling.
 - [x] Build cleanly with `flatpak-builder --force-clean build-dir <app-id>.yml`.
 - [+] Install and run the local build; test Start/Pause/Reset, focus/rest transitions, sounds, tray behavior, window icon/title, and clean shutdown on X11 and Wayland where possible.
+  - [ ] Restore the local Flatpak installation before repeating desktop checks; `flatpak info io.github.phni.Pomodoro98` reported not installed on 2026-09-24.
   - [x] Install and launch the local build under X11/XWayland.
   - [x] Verify the user-local Flatpak desktop export and refresh the desktop application database for GNOME menu discovery.
   - [x] Match the Tk window class to the Flatpak application ID so GNOME associates running windows with the packaged icon.
@@ -49,6 +60,7 @@
   - [ ] Decide whether to package and test optional tray integration in Flatpak.
 - [x] Validate the desktop file with `desktop-file-validate`.
 - [ ] Validate AppStream metadata with `flatpak-builder-lint appstream` and the complete repository with `flatpak-builder-lint manifest`.
+  - [ ] Upgrade to Freedesktop 26.08; `flatpak-builder-lint manifest` warned `runtime-update-available-to-org.freedesktop.Platform-26.08` on 2026-10-17.
 - [x] Test without network access and review sandbox permissions with `flatpak info --show-permissions <app-id>`. (Shared IPC plus `x11` and `pulseaudio` sockets.)
 - [ ] Add CI that performs a clean Flatpak build and runs the Flathub linter for every pull request.
 
@@ -61,6 +73,36 @@
 - [ ] Accept the application repository invitation and configure Flathub verification using the matching source-hosting account or owned domain.
 - [ ] After publication, verify the store listing, installation, launch, screenshots, metadata, and quality-status page.
 - [ ] Establish an update process for new source tags, dependency hashes, runtime upgrades, screenshots, and release metadata.
+
+## 6. Tech Debt
+
+Audit 2026-10-15. Priority = (Impact + Risk) x (6 - Effort); scores in brackets.
+
+### Phase 1: Quick Wins
+
+- [ ] Remove the legacy `pomodoro98.py` entry point. [30]
+  - [ ] Delete `pomodoro98.py` (it still references the non-existent `rest_end.wav`).
+  - [ ] Update `AGENTS.md`, which still calls it the main implementation and asks to keep both variants aligned.
+  - [ ] Drop it from the `make lint` `py_compile` step.
+- [ ] Merge `sdd/` into `SDD/`; directories differing only by case collide on macOS and Windows checkouts. Update the path in `AGENTS.md`. [25]
+- [ ] Make `VERSION` the single source of truth; read it at runtime instead of hardcoding `APP_VERSION`, and check the MetaInfo `<release>` matches during lint. [25]
+- [ ] Strengthen `make lint`: add `ruff` (or pyflakes), and split Python checks from Flatpak checks so they run without Flatpak installed. [20]
+- [ ] Treat `aplay` as failed when it exits non-zero so the Tk bell fallback still sounds. [15]
+- [ ] Fix stale docstrings and comments (`icon.ico`, `click.wav`, "Stop button never closes the app"). [10]
+
+### Phase 2: Testable Timer Core
+
+- [ ] Extract timer state into a plain-Python `TimerModel` with a `Mode` enum, keeping Tk as a thin view. [24]
+  - [ ] Replace the decrement-per-`after()` countdown with a monotonic deadline so the timer does not drift and survives suspend correctly.
+  - [ ] Replace the `"focus"`/`"rest"`/`"stopped"` strings and the repeated mode-to-label/colour mappings. [16]
+  - [ ] Share the duplicated callback-cancel logic in `pause()` and `reset()`.
+  - [ ] Update the tray only when mode or displayed time changes; avoid the double update in `_switch_mode`. [10]
+- [ ] Add `tests/` with pytest covering start, pause, reset, focus-to-rest, and cycle completion using a mocked clock. [24]
+- [ ] Implement the CI item in section 4 with pytest and ruff, in addition to the Flatpak build and linter. [28]
+
+### Phase 3: Ongoing
+
+- [ ] Track upstream security releases for the bundled Tcl/Tk 9.0.x and the pinned `tkinter-standalone` commit as part of the section 5 update process. [18]
 
 ## References
 
