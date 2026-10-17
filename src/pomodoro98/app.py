@@ -16,6 +16,7 @@ from pathlib import Path
 
 from pomodoro98 import APP_ID, __version__
 from pomodoro98.sound import SoundPlayer
+from pomodoro98.timer import Event, Mode, TimerModel
 from pomodoro98.tray import TrayIcon
 
 # ------------------------------
@@ -23,7 +24,7 @@ from pomodoro98.tray import TrayIcon
 # ------------------------------
 FOCUS_MINUTES = 25
 REST_MINUTES = 5
-TICK_MS = 1000
+TICK_MS = 200  # how often the view polls the timer; display changes once per second
 BELL_POLL_MS = 100
 
 APP_DIR = Path(__file__).resolve().parent
@@ -48,6 +49,15 @@ WIN98_TITLE_TEXT = "#FFFFFF"
 BAR_NORMAL = "#00A000"
 BAR_ALERT  = "#C00000"
 
+MODE_LABELS = {
+    Mode.FOCUS: "Mode: Focus (Work)",
+    Mode.REST: "Mode: Rest",
+    Mode.STOPPED: "Mode: Stopped",
+}
+MODE_TITLES = {Mode.FOCUS: "Focus", Mode.REST: "Rest", Mode.STOPPED: "Stopped"}
+CYCLE_COMPLETE_LABEL = "Mode: Cycle Complete (Stopped)"
+EVENT_SOUNDS = {Event.FOCUS_END: SOUND_FOCUS_END, Event.CYCLE_COMPLETE: SOUND_REST_END}
+
 # Icons
 ICONS_DIR = APP_DIR / "icons"
 ICON_FOCUS_FILE = ICONS_DIR / "icon.png"
@@ -71,22 +81,18 @@ class Pomodoro98(tk.Tk):
         self._load_window_icons()
 
         # State
-        self.mode = "stopped"  # 'focus', 'rest', 'stopped'
-        self.total_seconds = FOCUS_MINUTES * 60
-        self.remaining = self.total_seconds
-        self._running = False
+        self.timer = TimerModel(FOCUS_MINUTES * 60, REST_MINUTES * 60)
         self._after_id = None
+        self._last_view = None
+        self._icon_mode = None
 
         # UI
         self._build_ui()
-        self._update_clock_text(self.remaining)
-        self._draw_progress(0.0, BAR_NORMAL)
-        self._set_mode_icon()
         self._bell_poll_id = self.after(BELL_POLL_MS, self._process_bell_requests)
 
         # Tray (optional)
         self._tray.start()
-        self._update_tray()
+        self._render()
 
     # ---------- Icons ----------
     def _load_window_icons(self):
@@ -106,16 +112,16 @@ class Pomodoro98(tk.Tk):
         except Exception:
             LOGGER.exception("Failed to load application icons")
 
-    def _set_mode_icon(self):
+    def _set_mode_icon(self, mode):
         try:
-            if self.mode == "focus" and self._icon_focus_img:
+            if mode is Mode.FOCUS and self._icon_focus_img:
                 self.iconphoto(False, self._icon_focus_img)
-            elif self.mode == "rest" and self._icon_rest_img:
+            elif mode is Mode.REST and self._icon_rest_img:
                 self.iconphoto(False, self._icon_rest_img)
             elif self._icon_idle_img:
                 self.iconphoto(False, self._icon_idle_img)
         except Exception:
-            LOGGER.exception("Failed to update the window icon for mode %s", self.mode)
+            LOGGER.exception("Failed to update the window icon for mode %s", mode)
 
     # ---------- UI ----------
     def _build_ui(self):
@@ -190,121 +196,78 @@ class Pomodoro98(tk.Tk):
 
     # ---------- Logic ----------
     def start(self):
+        """Start, pause, or resume (the Start/Pause button)."""
         self._play_click_async()
-
-        if self._running:
-            self.pause()
-            return
-
-        if self.mode == "stopped":
-            self._switch_mode("focus")
-        self._running = True
-        self.start_btn.config(text="Pause")
-        self._set_mode_label()
-        self._after_id = self.after(TICK_MS, self._tick)
+        self.timer.toggle()
+        if self.timer.running:
+            self._schedule_tick()
+        else:
+            self._cancel_tick()
+        self._render()
 
     def pause(self):
         """Pause the active session without changing its remaining time."""
-        if not self._running:
-            return
-
-        self._running = False
-        if self._after_id:
-            try:
-                self.after_cancel(self._after_id)
-            except tk.TclError:
-                LOGGER.debug("Scheduled timer callback was already cancelled")
-            self._after_id = None
-        self.start_btn.config(text="Start")
-        self._set_mode_label(paused=True)
-        self._update_tray()
+        self.timer.pause()
+        self._cancel_tick()
+        self._render()
 
     def reset(self):
         """Stop the current session and restore a fresh focus timer."""
         self._play_click_async()
-        self._running = False
+        self._cancel_tick()
+        self.timer.reset()
+        self._render()
+
+    def _tick(self):
+        self._after_id = None
+        for event in self.timer.tick():
+            self._play_sound_async(EVENT_SOUNDS[event])
+        self._render()
+        if self.timer.running:
+            self._schedule_tick()
+
+    def _schedule_tick(self):
+        self._cancel_tick()
+        self._after_id = self.after(TICK_MS, self._tick)
+
+    def _cancel_tick(self):
         if self._after_id:
             try:
                 self.after_cancel(self._after_id)
             except tk.TclError:
                 LOGGER.debug("Scheduled timer callback was already cancelled")
             self._after_id = None
-        self.mode = "stopped"
-        self.start_btn.config(text="Start")
-        self.mode_label.config(text="Mode: Stopped")
-        self.total_seconds = FOCUS_MINUTES * 60
-        self.remaining = self.total_seconds
-        self._update_clock_text(self.remaining)
-        self._draw_progress(0.0, BAR_NORMAL)
-        self._set_mode_icon()
-        self._update_tray()
 
-    def _set_mode_label(self, paused=False):
-        if self.mode == "focus":
-            text = "Mode: Focus (Work)"
-        elif self.mode == "rest":
-            text = "Mode: Rest"
-        else:
-            text = "Mode: Stopped"
-        if paused and self.mode != "stopped":
-            text += " — Paused"
-        self.mode_label.config(text=text)
-
-    def _switch_mode(self, new_mode):
-        self.mode = new_mode
-        if new_mode == "focus":
-            self.total_seconds = FOCUS_MINUTES * 60
-            self.remaining = self.total_seconds
-            self._draw_progress(0.0, BAR_NORMAL)
-        elif new_mode == "rest":
-            self.total_seconds = REST_MINUTES * 60
-            self.remaining = self.total_seconds
-            self._draw_progress(0.0, BAR_ALERT)
-
-        self._set_mode_label()
-        self._update_clock_text(self.remaining)
-        self._set_mode_icon()
-        self._update_tray()
-
-    def _tick(self):
-        if not self._running:
+    # ---------- View ----------
+    def _render(self):
+        """Redraw only when what the user can see has changed."""
+        t = self.timer
+        view = (t.mode, t.running, t.completed, t.remaining)
+        if view == self._last_view:
             return
+        self._last_view = view
+        mode, running, completed, remaining = view
 
-        if self.remaining > 0:
-            self.remaining -= 1
-            self._update_clock_text(self.remaining)
-            elapsed = self.total_seconds - self.remaining
-            pct = elapsed / max(1, self.total_seconds)
-            bar_color = BAR_ALERT if self.mode == "rest" else BAR_NORMAL
-            self._draw_progress(pct, bar_color)
-            self._after_id = self.after(TICK_MS, self._tick)
-        else:
-            # time up for current mode
-            self._update_clock_text(0)
-            self._draw_progress(1.0, BAR_ALERT)
-
-            if self.mode == "focus":
-                # play in background; never block or crash UI
-                self._play_event_async("focus_end")
-                self._switch_mode("rest")
-                self._after_id = self.after(TICK_MS, self._tick)
-            elif self.mode == "rest":
-                self._play_event_async("rest_end")
-                self._running = False
-                self.mode = "stopped"
-                self.start_btn.config(text="Start")
-                self.mode_label.config(text="Mode: Cycle Complete (Stopped)")
-                self._set_mode_icon()
-                self._update_tray()
-
-    # ---------- Helpers ----------
-    def _update_clock_text(self, seconds):
-        mm = seconds // 60
-        ss = seconds % 60
+        mm, ss = divmod(remaining, 60)
         self.clock_label.config(text=f"{mm:02d}:{ss:02d}")
-        mode_text = "Focus" if self.mode == "focus" else ("Rest" if self.mode == "rest" else "Stopped")
-        self.title(f"Pomodoro98 — {mm:02d}:{ss:02d} [{mode_text}]")
-        self._update_tray()
+        self.title(f"Pomodoro98 — {mm:02d}:{ss:02d} [{MODE_TITLES[mode]}]")
+
+        bar_color = BAR_ALERT if (mode is Mode.REST or completed) else BAR_NORMAL
+        self._draw_progress(t.progress, bar_color)
+
+        if completed:
+            label = CYCLE_COMPLETE_LABEL
+        else:
+            label = MODE_LABELS[mode]
+            if not running and mode is not Mode.STOPPED:
+                label += " — Paused"
+        self.mode_label.config(text=label)
+        self.start_btn.config(text="Pause" if running else "Start")
+
+        if mode is not self._icon_mode:
+            self._icon_mode = mode
+            self._set_mode_icon(mode)
+        self._tray.update(mode.value, remaining)
 
     def _draw_progress(self, pct, color):
         pct = max(0.0, min(1.0, pct))
@@ -339,20 +302,12 @@ class Pomodoro98(tk.Tk):
     def _play_click_async(self):
         self._play_sound_async(SOUND_CLICK)
 
-    def _play_event_async(self, which):
-        path = SOUND_FOCUS_END if which == "focus_end" else SOUND_REST_END
-        self._play_sound_async(path)
-
-    # ---------- System Tray (optional) ----------
-    def _update_tray(self):
-        self._tray.update(self.mode, self.remaining)
-
     def shutdown(self):
         """Cancel Tk callbacks and optional integrations before closing."""
         if self._closing:
             return
         self._closing = True
-        self._running = False
+        self.timer.pause()
         for callback_id in (self._after_id, self._bell_poll_id):
             if callback_id:
                 try:
