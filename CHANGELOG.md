@@ -16,7 +16,7 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ### Changed
 
-- The window is wider (about 530 px instead of 410 px), so the title and
+- The window is wider (about 650 px instead of 410 px), so the title and
   status text are no longer truncated.
 - The window title shows only the mode, e.g. "Pomodoro98 [Focus]" or
   "Pomodoro98 [Paused]", and the focus status reads "Mode: Focus".

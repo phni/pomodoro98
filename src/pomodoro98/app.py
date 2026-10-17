@@ -29,7 +29,7 @@ TICK_MS = 200  # how often the view polls the timer; display changes once per se
 BELL_POLL_MS = 100
 
 # Content width; wide enough that the window title and every status label fit.
-PROGRESS_MIN_WIDTH = 480
+PROGRESS_MIN_WIDTH = 600
 LABEL_FONT = ("MS Sans Serif", 9)
 
 APP_DIR = Path(__file__).resolve().parent
