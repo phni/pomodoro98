@@ -284,7 +284,8 @@ class Pomodoro98(tk.Tk):
 
         mm, ss = divmod(remaining, 60)
         self.clock_label.config(text=f"{mm:02d}:{ss:02d}")
-        self.title(f"Pomodoro98 [{MODE_TITLES[mode]}]")
+        paused = not running and mode is not Mode.STOPPED
+        self.title(f"Pomodoro98 [{'Paused' if paused else MODE_TITLES[mode]}]")
 
         bar_color = BAR_ALERT if (mode is Mode.REST or completed) else BAR_NORMAL
         self._draw_progress(t.progress, bar_color)
@@ -293,7 +294,7 @@ class Pomodoro98(tk.Tk):
             label = CYCLE_COMPLETE_LABEL
         else:
             label = MODE_LABELS[mode]
-            if not running and mode is not Mode.STOPPED:
+            if paused:
                 label += " — Paused"
         self.mode_label.config(text=label)
         self.start_btn.config(text="Pause" if running else "Start")
