@@ -7,18 +7,18 @@ Claude Code workflow are defined in
 [ADR 0001: SDLC conventions](docs/adr/0001-sdlc-conventions.md). Follow it for
 every change.
 
-## SDD TODO Workflow
+## Task Workflow
 
-At the start of each task, inspect `SDD/todo.md`. Treat every line marked with
-`[+]` as an active instruction and take action on it as part of the current
-work. When an active item requires information or a material decision that is
-not available in the repository, ask the user for that input instead of making
-an unsafe assumption. Leave `[ ]` items untouched unless the user requests
-them. After completing an active item, change its marker from `[+]` to `[x]` and
-record the implementation under `sdd/changes/`. Whenever work reveals a
-pending action, blocker, or incomplete portion of a TODO, add it immediately to
-`SDD/todo.md` as an indented checklist sub-action beneath its parent item. Mark
-the parent complete only after all required sub-actions are complete.
+Planned work lives only in Linear (project **SDLC Pomodoro98**, team key `R3D`).
+Start every task from its Linear issue and reference the key in the PR title.
+When an issue needs information or a material decision that is not in the
+repository or the issue, ask the maintainer instead of making an unsafe
+assumption. If the work reveals a follow-up, blocker, or out-of-scope change,
+create a Linear issue for it (or comment on the current one) rather than
+noting it in the repository. Record what changed and how it was verified in the
+PR description; user-visible changes also go in `CHANGELOG.md`. Older change
+notes are archived in `docs/history/`, and design decisions are recorded as
+ADRs in `docs/adr/`.
 
 ## Project Structure & Module Organization
 
