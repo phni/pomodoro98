@@ -12,6 +12,7 @@
 import logging
 import queue
 import tkinter as tk
+import tkinter.font as tkfont
 from pathlib import Path
 
 from pomodoro98 import APP_ID
@@ -26,6 +27,10 @@ FOCUS_MINUTES = 25
 REST_MINUTES = 5
 TICK_MS = 200  # how often the view polls the timer; display changes once per second
 BELL_POLL_MS = 100
+
+# Content width; wide enough that the window title and every status label fit.
+PROGRESS_MIN_WIDTH = 480
+LABEL_FONT = ("MS Sans Serif", 9)
 
 APP_DIR = Path(__file__).resolve().parent
 LOGGER = logging.getLogger(__name__)
@@ -160,7 +165,12 @@ class Pomodoro98(tk.Tk):
         # Progress
         prog_frame = tk.Frame(body, bg=WIN98_BG)
         prog_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 8))
-        self.prog_width = 360
+        status_font = tkfont.Font(self, font=LABEL_FONT)
+        longest_status = max(
+            status_font.measure(text + " — Paused") for text in MODE_LABELS.values()
+        )
+        longest_status = max(longest_status, status_font.measure(CYCLE_COMPLETE_LABEL))
+        self.prog_width = max(PROGRESS_MIN_WIDTH, longest_status + 40)
         self.prog_height = 22
 
         groove = tk.Frame(prog_frame, bg=WIN98_BG, bd=2, relief="sunken")
@@ -198,7 +208,7 @@ class Pomodoro98(tk.Tk):
 
         # Mode label
         self.mode_label = tk.Label(
-            body, text="Mode: Stopped", font=("MS Sans Serif", 9), bg=WIN98_BG, fg=WIN98_TEXT
+            body, text="Mode: Stopped", font=LABEL_FONT, bg=WIN98_BG, fg=WIN98_TEXT
         )
         self.mode_label.grid(row=3, column=0, columnspan=2, pady=(6, 0))
 
@@ -215,7 +225,7 @@ class Pomodoro98(tk.Tk):
             relief="raised",
             padx=10,
             pady=2,
-            font=("MS Sans Serif", 9),
+            font=LABEL_FONT,
         )
 
     # ---------- Logic ----------
