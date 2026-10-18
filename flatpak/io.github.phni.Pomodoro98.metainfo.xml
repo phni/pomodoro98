@@ -37,6 +37,18 @@
     <color type="primary" scheme_preference="dark">#000080</color>
   </branding>
   <releases>
+    <release version="2026.10.0" date="2026-10-18">
+      <url type="details">https://github.com/phni/pomodoro98/releases/tag/v2026.10.0</url>
+      <description>
+        <p>First release with the new calendar versioning.</p>
+        <ul>
+          <li>The timer keeps accurate time and keeps counting while the computer is suspended.</li>
+          <li>A wider window, with the mode or "Paused" shown in the window title.</li>
+          <li>The bell sounds when no audio device can play the alert.</li>
+          <li>Built on the Freedesktop 26.08 runtime.</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-08-13">
       <description>
         <p>Initial production-ready release.</p>
