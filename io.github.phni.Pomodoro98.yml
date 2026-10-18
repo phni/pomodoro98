@@ -13,6 +13,11 @@ modules:
   - name: tcl9.0
     buildsystem: autotools
     subdir: unix
+    build-options:
+      env:
+        # Tcl 9.0.4 configures its bundled packages with the just-built tclsh,
+        # which needs the not-yet-installed libtcl9.0.so.
+        LD_LIBRARY_PATH: /run/build/tcl9.0/unix
     config-opts:
       - --disable-zipfs
     post-install:
