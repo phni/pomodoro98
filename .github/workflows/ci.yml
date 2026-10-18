@@ -68,8 +68,9 @@ jobs:
           manifest-path: io.github.phni.Pomodoro98.yml
           cache-key: flatpak-builder-${{ hashFiles('io.github.phni.Pomodoro98.yml') }}
           upload-artifact: false
-      - name: Flathub manifest linter
+      - name: Flathub AppStream and manifest linter
         run: |
           flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install -y --noninteractive flathub org.flatpak.Builder
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream flatpak/io.github.phni.Pomodoro98.metainfo.xml
           flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest io.github.phni.Pomodoro98.yml
