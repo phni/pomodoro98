@@ -45,6 +45,7 @@ commit. To build the Flatpak as well, follow "Flatpak development" in the
 
 ```bash
 make lint-py      # ruff, syntax, and version checks (no Flatpak needed)
+make test-py      # pytest suite with coverage (UI tests need a display)
 make run          # run the app from the source tree
 make lint         # also validates the desktop file, AppStream, and manifest
 make test         # builds the Flatpak and runs sandbox checks
@@ -62,8 +63,10 @@ progress colours, window title, sounds or bell, and closing the window.
   the platforms you tested.
 - Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for any
   user-visible change.
-- `main` is protected: every change needs a PR, and the maintainer
-  squash-merges it. The branch is deleted automatically after merging.
+- CI (`.github/workflows/ci.yml`) runs lint, the tests on Python 3.10–3.13
+  under Xvfb, and a Flatpak build with the Flathub linter on every PR.
+- `main` is protected: every change needs a PR with passing CI, and the
+  maintainer squash-merges it. The branch is deleted automatically after merging.
 
 ## Versioning
 

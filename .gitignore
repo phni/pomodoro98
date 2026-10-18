@@ -24,3 +24,5 @@ dist/
 .venv/
 .pytest_cache/
 repo/
+.coverage
+htmlcov/
