@@ -74,8 +74,10 @@ Before a release, run the full [release checklist](docs/release-checklist.md).
 - `main` is protected: every change needs a PR with passing CI, and the
   maintainer squash-merges it. The branch is deleted automatically after merging.
 
-## Versioning
+## Versioning and releases
 
 Releases use CalVer, `YYYY.MM.PATCH`. The version lives only in
 `src/pomodoro98/__init__.py`; `make lint` checks that the newest MetaInfo
 `<release>` matches it.
+
+The full release procedure is in [docs/releasing.md](docs/releasing.md).

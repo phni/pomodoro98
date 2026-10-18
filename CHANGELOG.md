@@ -8,6 +8,8 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+## [2026.10.0] - 2026-10-18
+
 ### Added
 
 - `POMODORO98_FOCUS_SECONDS` and `POMODORO98_REST_SECONDS` environment
@@ -55,5 +57,6 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 - Flatpak packaging as `io.github.phni.Pomodoro98` with desktop file, MetaInfo,
   and icons.
 
-[Unreleased]: https://github.com/phni/pomodoro98/compare/7c104e0...HEAD
-[0.1.0]: https://github.com/phni/pomodoro98/tree/7c104e0
+[Unreleased]: https://github.com/phni/pomodoro98/compare/v2026.10.0...HEAD
+[2026.10.0]: https://github.com/phni/pomodoro98/compare/v0.1.0...v2026.10.0
+[0.1.0]: https://github.com/phni/pomodoro98/releases/tag/v0.1.0

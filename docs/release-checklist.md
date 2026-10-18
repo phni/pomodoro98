@@ -85,4 +85,4 @@ Do this section once in a **Wayland** session and once in an **X11** session
 - [ ] Add "Release checklist passed on <distro>, Wayland and X11" to the
       release PR.
 
-Tagging and publishing steps are in the release process (R3D-59).
+Tagging and publishing steps are in [the release process](releasing.md).
