@@ -1,6 +1,6 @@
 id: io.github.phni.Pomodoro98
 runtime: org.freedesktop.Platform
-runtime-version: "26.08"
+runtime-version: '26.08'
 sdk: org.freedesktop.Sdk
 command: pomodoro98
 
@@ -24,13 +24,13 @@ modules:
       - /man
     sources:
       - type: archive
-        url: https://downloads.sourceforge.net/tcl/tcl9.0.2-src.tar.gz
+        url: https://downloads.sourceforge.net/tcl/tcl9.0.4-src.tar.gz
         x-checker-data:
           type: html
           url: https://www.tcl-lang.org/software/tcltk/download.html
           version-pattern: tcl(9\.0\.\d+)-src\.tar\.gz
           url-template: https://downloads.sourceforge.net/tcl/tcl$version-src.tar.gz
-        sha256: e074c6a8d9ba2cddf914ba97b6677a552d7a52a3ca102924389a05ccb249b520
+        sha256: d0aed49230bc02a65c1e0229e65f34590a4b037ec40d546f32573b467f7551ea
 
   - name: tk9.0
     buildsystem: autotools
@@ -46,13 +46,13 @@ modules:
       - /man
     sources:
       - type: archive
-        url: https://downloads.sourceforge.net/tcl/tk9.0.2-src.tar.gz
+        url: https://downloads.sourceforge.net/tcl/tk9.0.4-src.tar.gz
         x-checker-data:
           type: html
           url: https://www.tcl-lang.org/software/tcltk/download.html
           version-pattern: tk(9\.0\.\d+)-src\.tar\.gz
           url-template: https://downloads.sourceforge.net/tcl/tk$version-src.tar.gz
-        sha256: 76fb852b2f167592fe8b41aa6549ce4e486dbf3b259a269646600e3894517c76
+        sha256: d7a146d2917eb8b5cc95276dbf0e3d03c7464d2b19c1675357857c989301dbb4
 
   # The runtime's Python has no tkinter. Build _tkinter and Lib/tkinter from the
   # CPython release matching the runtime Python (3.14.7 in Freedesktop 26.08)
