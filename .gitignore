@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flatpak build output
+.flatpak-builder/
+build-dir/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.venv/
+.pytest_cache/
+repo/
+.coverage
+htmlcov/
+lint-repo/

@@ -1,0 +1,4 @@
+# Pomodoro98 has no required third-party Python dependencies.
+# Optional tray and audio integrations are listed in requirements-optional.txt.
+# Install extras with: python3 -m pip install -r requirements-optional.txt
+# Tkinter must be supplied by your Python installation or OS, not pip.

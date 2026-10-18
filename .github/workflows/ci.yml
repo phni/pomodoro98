@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y desktop-file-utils appstream
+          python -m pip install -e '.[dev]'
+      - name: Python lint, format, and version check
+        run: make lint-py
+      - name: Desktop file
+        run: desktop-file-validate flatpak/io.github.phni.Pomodoro98.desktop
+      - name: AppStream metadata
+        run: appstreamcli validate --no-net --strict flatpak/io.github.phni.Pomodoro98.metainfo.xml
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          python -m pip install -e '.[dev]'
+      - name: Pytest under Xvfb
+        run: xvfb-run -a python -m pytest --cov=pomodoro98 --cov-report=term-missing
+
+  flatpak:
+    name: Flatpak build and Flathub lint
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: pomodoro98.flatpak
+          manifest-path: io.github.phni.Pomodoro98.yml
+          cache-key: flatpak-builder-${{ hashFiles('io.github.phni.Pomodoro98.yml') }}
+          upload-artifact: false
+      - name: Flathub AppStream and manifest linter
+        run: |
+          flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --noninteractive flathub org.flatpak.Builder
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream flatpak/io.github.phni.Pomodoro98.metainfo.xml
+          flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest io.github.phni.Pomodoro98.yml
