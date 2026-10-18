@@ -23,7 +23,7 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 - Updated the screenshot to show the current window.
 - The Flatpak uses the Freedesktop 26.08 runtime (Python 3.14), with tkinter
-  built from the matching CPython release.
+  built from the matching CPython release, and bundles Tcl/Tk 9.0.4.
 - The window is wider (about 650 px instead of 410 px), so the title and
   status text are no longer truncated.
 - The window title shows only the mode, e.g. "Pomodoro98 [Focus]" or
