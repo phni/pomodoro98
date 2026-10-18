@@ -63,7 +63,7 @@ progress colours, window title, sounds or bell, and closing the window.
   the platforms you tested.
 - Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for any
   user-visible change.
-- CI (`.github/workflows/ci.yml`) runs lint, the tests on Python 3.10–3.13
+- CI (`.github/workflows/ci.yml`) runs lint, the tests on Python 3.10–3.14
   under Xvfb, and a Flatpak build with the Flathub linter on every PR.
 - `main` is protected: every change needs a PR with passing CI, and the
   maintainer squash-merges it. The branch is deleted automatically after merging.

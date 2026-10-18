@@ -1,6 +1,6 @@
 # ADR 0002: Flatpak runtime selection
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0004](0004-freedesktop-26.08-runtime.md)
 - **Date:** 2026-08-13 (moved from `SDD/runtime-selection.md` on 2026-10-17)
 - **Follow-up:** upgrade to Freedesktop 26.08 is tracked in R3D-64.
 
