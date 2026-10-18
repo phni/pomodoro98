@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Fail if the package version and the newest MetaInfo release disagree.
 
+With ``--tag vX.Y.Z`` it also fails unless the tag names that same version,
+which the release workflow uses before publishing.
+
 ``pomodoro98.__version__`` is the single source of truth for the version;
 ``pyproject.toml`` reads it, and the Flatpak MetaInfo must list it as the
 newest ``<release>``.
 """
 
+import argparse
 import ast
 import sys
 import xml.etree.ElementTree as ET
@@ -32,10 +36,16 @@ def metainfo_version():
     return release.get("version")
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--tag", help="release tag to check, e.g. v2026.10.0")
+    args = parser.parse_args(argv)
+
     pkg, meta = package_version(), metainfo_version()
     if pkg != meta:
         sys.exit(f"Version mismatch: __version__ is {pkg}, newest MetaInfo release is {meta}")
+    if args.tag is not None and args.tag != f"v{pkg}":
+        sys.exit(f"Version mismatch: tag is {args.tag}, expected v{pkg}")
     print(f"Version check passed: {pkg}")
 
 
