@@ -69,8 +69,10 @@ Before a release, run the full [release checklist](docs/release-checklist.md).
   the platforms you tested.
 - Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for any
   user-visible change.
-- CI (`.github/workflows/ci.yml`) runs lint, the tests on Python 3.10–3.14
-  under Xvfb, and a Flatpak build with the Flathub linter on every PR.
+- CI (`.github/workflows/ci.yml`) runs lint and the tests on Python 3.10–3.14
+  under Xvfb on every PR. The Flatpak build with the Flathub linter runs only
+  when a PR changes the manifest, `flatpak/`, `src/`, or `pyproject.toml`, and
+  on every push to `main`.
 - `main` is protected: every change needs a PR with passing CI, and the
   maintainer squash-merges it. The branch is deleted automatically after merging.
 

@@ -53,8 +53,33 @@ jobs:
       - name: Pytest under Xvfb
         run: xvfb-run -a python -m pytest --cov=pomodoro98 --cov-report=term-missing
 
+  changes:
+    name: Detect packaging changes
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: read
+    outputs:
+      flatpak: ${{ steps.filter.outputs.flatpak }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            flatpak:
+              - io.github.phni.Pomodoro98.yml
+              - flatpak/**
+              - src/**
+              - pyproject.toml
+              - .github/workflows/ci.yml
+
   flatpak:
     name: Flatpak build and Flathub lint
+    # The build takes most of CI's time, so pull requests skip it unless they
+    # change what goes into the Flatpak. Pushes to main always build. A job
+    # skipped by this condition still satisfies the required check.
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.flatpak == 'true'
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
