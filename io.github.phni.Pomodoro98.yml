@@ -1,6 +1,6 @@
 id: io.github.phni.Pomodoro98
 runtime: org.freedesktop.Platform
-runtime-version: "25.08"
+runtime-version: "26.08"
 sdk: org.freedesktop.Sdk
 command: pomodoro98
 
@@ -44,14 +44,26 @@ modules:
         url: https://downloads.sourceforge.net/tcl/tk9.0.2-src.tar.gz
         sha256: 76fb852b2f167592fe8b41aa6549ce4e486dbf3b259a269646600e3894517c76
 
+  # The runtime's Python has no tkinter. Build _tkinter and Lib/tkinter from the
+  # CPython release matching the runtime Python (3.14.7 in Freedesktop 26.08)
+  # against the bundled Tcl/Tk. Bump this source whenever the runtime's Python
+  # version changes.
   - name: tkinter
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app --no-build-isolation --no-deps .
+      - >-
+        gcc -shared -fPIC -O2 -DPy_BUILD_CORE_MODULE
+        -I/usr/include/python3.14 -I/usr/include/python3.14/internal
+        -IModules -I/app/include
+        Modules/_tkinter.c
+        -o "_tkinter$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("EXT_SUFFIX"))')"
+        -L/app/lib -ltcl9tk9.0 -ltcl9.0 -Wl,-rpath,/app/lib
+      - install -Dm755 -t /app/lib/python3.14/site-packages _tkinter*.so
+      - cp -a Lib/tkinter /app/lib/python3.14/site-packages/
     sources:
-      - type: git
-        url: https://github.com/iwalton3/tkinter-standalone.git
-        commit: 8e78e38ef0cceb44a3a0062e1c314a4ff3f981db
+      - type: archive
+        url: https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz
+        sha256: 3b48dac8fb59f62eaa67ac83c1eb12bda1b7a08406dd286e252c11a66be27f81
 
   - name: pomodoro98
     buildsystem: simple

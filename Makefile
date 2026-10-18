@@ -6,7 +6,7 @@ LINT_REPO_DIR := lint-repo
 FLATHUB_MEDIA_URL := https://dl.flathub.org/media
 LOCAL_REMOTE := pomodoro98-local
 BUILDER_APP := org.flatpak.Builder
-RUNTIME_VERSION := 25.08
+RUNTIME_VERSION := 26.08
 FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP) --disable-rofiles-fuse
 FLATPAK_LINTER := flatpak run --command=flatpak-builder-lint $(BUILDER_APP)
 
@@ -16,7 +16,7 @@ FLATPAK_LINTER := flatpak run --command=flatpak-builder-lint $(BUILDER_APP)
 help:
 	@echo "Pomodoro98 development commands"
 	@echo ""
-	@echo "  make setup-flatpak  Install Builder and Freedesktop 25.08 prerequisites"
+	@echo "  make setup-flatpak  Install Builder and Freedesktop 26.08 prerequisites"
 	@echo "  make build          Build using Flatpak Builder's module cache"
 	@echo "  make rebuild        Rebuild all modules without the module cache"
 	@echo "  make lint           Run lint-py and lint-flatpak"

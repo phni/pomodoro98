@@ -103,7 +103,7 @@ For other distributions, follow the [Flathub setup instructions](https://flathub
 Restart your desktop session after first installing Flatpak if needed for desktop
 menu integration. System-wide setup may ask for administrator authentication.
 
-From the repository directory, install Builder and the Freedesktop 25.08 runtime
+From the repository directory, install Builder and the Freedesktop 26.08 runtime
 and SDK, then build and run:
 
 ```bash
