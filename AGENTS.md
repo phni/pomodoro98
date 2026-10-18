@@ -52,7 +52,7 @@ Follow PEP 8 with four-space indentation. Use `snake_case` for functions, method
 
 ## Testing Guidelines
 
-Run `make lint-py` for every change, and `make lint` plus `make test` when packaging or runtime behavior changes. Automated unit tests are being added (R3D-53): place them in `tests/`, name them `test_*.py`, use `pytest`, drive `TimerModel` with a fake clock, and mock audio and tray integrations. Until then, manually verify Start/Pause/Reset, focus-to-rest transitions, progress colors, title updates, close handling, sound fallback, and tray state, including when optional dependencies or assets are unavailable.
+Run `make lint-py` and `make test-py` for every change, and `make lint` plus `make test` when packaging or runtime behavior changes. CI runs the same checks on every PR. Tests live in `tests/` as `test_*.py` and use `pytest`: drive `TimerModel` with a fake clock, mock audio and tray integrations, and keep Tk window tests skippable when no display is available. Also manually verify Start/Pause/Reset, focus-to-rest transitions, progress colors, title updates, close handling, sound fallback, and tray state, including when optional dependencies or assets are unavailable.
 
 ## Commit & Pull Request Guidelines
 

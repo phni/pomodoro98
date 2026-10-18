@@ -22,7 +22,7 @@ classifiers = [
 [project.optional-dependencies]
 tray = ["pystray", "Pillow"]
 audio = ["simpleaudio"]
-dev = ["pytest", "ruff", "pre-commit"]
+dev = ["pytest", "pytest-cov", "ruff", "pre-commit"]
 
 [project.scripts]
 pomodoro98 = "pomodoro98.app:main"
@@ -39,6 +39,10 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 pomodoro98 = ["icons/*.png", "sounds/*.wav"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
 
 [tool.ruff]
 line-length = 100
