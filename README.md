@@ -126,6 +126,7 @@ make build         # build using cached dependency modules
 make rebuild       # rebuild every module without the cache
 make lint          # Python, metadata, and manifest validation
 make lint-py       # Python checks only (no Flatpak needed)
+make lint-repo     # build like Flathub and run the Flathub repo linter
 make test          # non-interactive sandbox checks
 make install       # install for the current user
 make run-flatpak   # run the installed package
