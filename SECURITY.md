@@ -20,4 +20,5 @@ as a new version and noted in [CHANGELOG.md](CHANGELOG.md).
 Pomodoro98 is an offline desktop app. The Flatpak requests only X11, shared IPC,
 and PulseAudio access, with no network or filesystem permissions. The Flatpak
 bundles Tcl/Tk and a `_tkinter` build; vulnerabilities in those components are
-in scope when they affect the packaged app.
+in scope when they affect the packaged app. How those bundled components are
+kept up to date is described in [docs/dependency-updates.md](docs/dependency-updates.md).

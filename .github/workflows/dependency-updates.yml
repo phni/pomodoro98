@@ -1,0 +1,48 @@
+name: Dependency updates
+
+# Weekly check of the sources bundled in the Flatpak manifest that carry
+# x-checker-data (Tcl and Tk). When a newer release exists, the checker opens a
+# PR that bumps the URL and SHA-256. Pull requests that change the manifest or
+# this workflow run the check in report-only mode.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - io.github.phni.Pomodoro98.yml
+      - .github/workflows/dependency-updates.yml
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check bundled sources
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub/flatpak-external-data-checker:latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Report available updates
+        if: github.event_name == 'pull_request'
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          /app/flatpak-external-data-checker io.github.phni.Pomodoro98.yml
+      - name: Open update pull requests
+        if: github.event_name != 'pull_request'
+        env:
+          # PRs opened with the default token do not trigger CI; set a
+          # DEPENDENCY_BOT_TOKEN secret (fine-grained PAT) to have CI run on them.
+          GITHUB_TOKEN: ${{ secrets.DEPENDENCY_BOT_TOKEN || github.token }}
+          GIT_AUTHOR_NAME: Pomodoro98 dependency bot
+          GIT_COMMITTER_NAME: Pomodoro98 dependency bot
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          /app/flatpak-external-data-checker --update --never-fork io.github.phni.Pomodoro98.yml
