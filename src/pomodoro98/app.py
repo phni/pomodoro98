@@ -10,6 +10,7 @@
 """
 
 import logging
+import os
 import queue
 import tkinter as tk
 import tkinter.font as tkfont
@@ -27,6 +28,11 @@ FOCUS_MINUTES = 25
 REST_MINUTES = 5
 TICK_MS = 200  # how often the view polls the timer; display changes once per second
 BELL_POLL_MS = 100
+
+# Testing aid: shorten periods with POMODORO98_FOCUS_SECONDS / POMODORO98_REST_SECONDS,
+# e.g. `flatpak run --env=POMODORO98_FOCUS_SECONDS=60 io.github.phni.Pomodoro98`.
+FOCUS_SECONDS_ENV = "POMODORO98_FOCUS_SECONDS"
+REST_SECONDS_ENV = "POMODORO98_REST_SECONDS"
 
 # Content width; wide enough that the window title and every status label fit.
 PROGRESS_MIN_WIDTH = 600
@@ -69,6 +75,22 @@ ICON_REST_FILE = ICONS_DIR / "icon_rest.png"
 ICON_IDLE_FILE = ICONS_DIR / "icon_idle.png"
 
 
+def duration_from_env(name, default_seconds, environ=os.environ):
+    """Return a positive whole number of seconds from ``environ[name]``, else the default."""
+    value = environ.get(name)
+    if value is None:
+        return default_seconds
+    try:
+        seconds = int(value)
+    except ValueError:
+        seconds = 0
+    if seconds <= 0:
+        LOGGER.warning("Ignoring %s=%r; expected a positive number of seconds", name, value)
+        return default_seconds
+    LOGGER.info("Using %s=%d for testing", name, seconds)
+    return seconds
+
+
 class Pomodoro98(tk.Tk):
     def __init__(self):
         super().__init__(baseName=APP_ID, className=APP_ID)
@@ -85,7 +107,10 @@ class Pomodoro98(tk.Tk):
         self._load_window_icons()
 
         # State
-        self.timer = TimerModel(FOCUS_MINUTES * 60, REST_MINUTES * 60)
+        self.timer = TimerModel(
+            duration_from_env(FOCUS_SECONDS_ENV, FOCUS_MINUTES * 60),
+            duration_from_env(REST_SECONDS_ENV, REST_MINUTES * 60),
+        )
         self._after_id = None
         self._last_view = None
         self._icon_mode = None

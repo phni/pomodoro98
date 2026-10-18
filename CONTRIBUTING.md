@@ -52,8 +52,14 @@ make test         # builds the Flatpak and runs sandbox checks
 ```
 
 Then exercise the app by hand: Start, Pause, resume, Reset, a full focus→rest
-cycle (temporarily lower `FOCUS_MINUTES`/`REST_MINUTES` in `app.py` locally),
-progress colours, window title, sounds or bell, and closing the window.
+cycle, progress colours, window title, sounds or bell, and closing the window.
+For a quick cycle, set short periods in seconds:
+
+```bash
+POMODORO98_FOCUS_SECONDS=60 POMODORO98_REST_SECONDS=30 make run
+```
+
+Before a release, run the full [release checklist](docs/release-checklist.md).
 
 ## 5. Open a pull request
 

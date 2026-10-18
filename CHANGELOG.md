@@ -10,6 +10,9 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ### Added
 
+- `POMODORO98_FOCUS_SECONDS` and `POMODORO98_REST_SECONDS` environment
+  variables shorten the periods for quick manual testing.
+- A manual release checklist in `docs/release-checklist.md`.
 - Installable Python package with a `pomodoro98` command
   (`pip install -e '.[tray,audio]'`, or `python -m pomodoro98`).
 - Contributor guide, security policy, and issue and pull request templates.

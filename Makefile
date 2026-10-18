@@ -2,13 +2,15 @@ APP_ID := io.github.phni.Pomodoro98
 MANIFEST := $(APP_ID).yml
 BUILD_DIR := build-dir
 REPO_DIR := repo
+LINT_REPO_DIR := lint-repo
+FLATHUB_MEDIA_URL := https://dl.flathub.org/media
 LOCAL_REMOTE := pomodoro98-local
 BUILDER_APP := org.flatpak.Builder
 RUNTIME_VERSION := 26.08
 FLATPAK_BUILDER := flatpak run --command=flatpak-builder $(BUILDER_APP) --disable-rofiles-fuse
 FLATPAK_LINTER := flatpak run --command=flatpak-builder-lint $(BUILDER_APP)
 
-.PHONY: help check-flatpak setup-flatpak build rebuild lint lint-py lint-flatpak format test test-py \
+.PHONY: help check-flatpak setup-flatpak build rebuild lint lint-py lint-flatpak lint-repo format test test-py \
 	run run-flatpak install uninstall clean
 
 help:
@@ -20,6 +22,7 @@ help:
 	@echo "  make lint           Run lint-py and lint-flatpak"
 	@echo "  make lint-py        Ruff, syntax, and version checks (no Flatpak needed)"
 	@echo "  make lint-flatpak   Validate desktop file, AppStream, and manifest"
+	@echo "  make lint-repo      Build like Flathub (mirrored screenshots) and lint the repo"
 	@echo "  make format         Format Python code with ruff"
 	@echo "  make test-py        Run the pytest suite with coverage"
 	@echo "  make test           Run non-interactive checks against the Flatpak build"
@@ -62,7 +65,18 @@ lint-py:
 lint-flatpak: check-flatpak
 	desktop-file-validate flatpak/$(APP_ID).desktop
 	appstreamcli validate --no-net --strict flatpak/$(APP_ID).metainfo.xml
+	$(FLATPAK_LINTER) appstream flatpak/$(APP_ID).metainfo.xml
 	$(FLATPAK_LINTER) manifest $(MANIFEST)
+
+# Mirror screenshots into the repo the way Flathub's build service does (Builder
+# commits them as the screenshots/<arch> ref), so the repo linter can check the
+# exported AppStream data. Uses its own repo so `make install` keeps the
+# original screenshot URLs.
+lint-repo: check-flatpak
+	$(FLATPAK_BUILDER) --force-clean --repo=$(LINT_REPO_DIR) \
+		--mirror-screenshots-url=$(FLATHUB_MEDIA_URL) --compose-url-policy=full \
+		$(BUILD_DIR) $(MANIFEST)
+	$(FLATPAK_LINTER) repo $(LINT_REPO_DIR)
 
 test-py:
 	python3 -m pytest --cov=pomodoro98 --cov-report=term-missing
@@ -100,4 +114,4 @@ uninstall:
 
 clean:
 	flatpak run --command=sh $(BUILDER_APP) -c \
-		'rm -rf $(CURDIR)/$(BUILD_DIR) $(CURDIR)/$(REPO_DIR) $(CURDIR)/.flatpak-builder'
+		'rm -rf $(CURDIR)/$(BUILD_DIR) $(CURDIR)/$(REPO_DIR) $(CURDIR)/$(LINT_REPO_DIR) $(CURDIR)/.flatpak-builder'
