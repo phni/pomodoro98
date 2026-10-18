@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,13 +7,13 @@ name = "pomodoro98"
 dynamic = ["version"]
 description = "A Windows 98-styled Pomodoro timer built with Tkinter"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "phni" }]
 requires-python = ">=3.10"
 dependencies = []
 classifiers = [
     "Environment :: X11 Applications",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Topic :: Utilities",

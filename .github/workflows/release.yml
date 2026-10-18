@@ -1,0 +1,108 @@
+name: Release
+
+# Pushing a vYYYY.MM.PATCH tag publishes a GitHub release. Pull requests that
+# touch the release tooling run every step except publishing, as a dry run.
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - scripts/check_version.py
+      - scripts/release_notes.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify version and notes
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Read version
+        id: version
+        run: |
+          version=$(python -c 'import ast, pathlib; print(next(ast.literal_eval(n.value) for n in ast.parse(pathlib.Path("src/pomodoro98/__init__.py").read_text()).body if isinstance(n, ast.Assign) and n.targets[0].id == "__version__"))')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Tag, package, and MetaInfo versions match
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            python scripts/check_version.py --tag "$GITHUB_REF_NAME"
+          else
+            python scripts/check_version.py
+          fi
+      - name: Release notes from CHANGELOG.md
+        run: python scripts/release_notes.py "${{ steps.version.outputs.version }}" > release-notes.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  python:
+    name: Python wheel and sdist
+    needs: verify
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Build
+        run: |
+          python -m pip install build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+
+  flatpak:
+    name: Flatpak bundle
+    needs: verify
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-26.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v5
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: pomodoro98-${{ needs.verify.outputs.version }}.flatpak
+          manifest-path: io.github.phni.Pomodoro98.yml
+          cache-key: flatpak-builder-${{ hashFiles('io.github.phni.Pomodoro98.yml') }}
+          upload-artifact: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-bundle
+          path: pomodoro98-${{ needs.verify.outputs.version }}.flatpak
+
+  publish:
+    name: Publish GitHub release
+    needs: [verify, python, flatpak]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Pomodoro98 $VERSION" \
+            --notes-file artifacts/release-notes.md \
+            artifacts/*.whl artifacts/*.tar.gz artifacts/*.flatpak
