@@ -68,7 +68,8 @@ Do this section once in a **Wayland** session and once in an **X11** session
 - [ ] The dock or taskbar shows the Pomodoro98 icon (not a generic icon)
       while the app runs.
 - [ ] The window icon changes between focus, rest, and idle.
-- [ ] Tray icon, only when running from source with `.[tray]` installed:
+- [ ] Tray icon (source installs with `.[tray]` only; the Flatpak has no
+      tray, see ADR 0003 / R3D-71):
       green in focus, red in rest, grey when stopped; tooltip shows the
       remaining time.
 
