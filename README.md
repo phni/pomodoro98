@@ -156,7 +156,7 @@ also work on hosts where those mounts fail. Build caching remains enabled for
 
 ![Pomodoro98 application window](docs/screenshots/pomodoro98.png)
 
-Pomodoro98 running a focus session on Linux.
+Pomodoro98 on Ubuntu, ready to begin a focus session.
 
 ## Contributing
 
