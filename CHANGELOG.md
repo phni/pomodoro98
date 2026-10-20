@@ -8,6 +8,11 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+### Changed
+
+- New pixel-art tomato app icon in a Windows 98 window, used for the
+  launcher, dock, and window; the idle window icon is a grey version.
+
 ## [2026.10.0] - 2026-10-18
 
 ### Added
