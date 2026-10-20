@@ -12,14 +12,14 @@
   <description>
     <p>
       Pomodoro98 is a lightweight focus timer styled after classic Windows 98
-      applications. It provides focused work and rest sessions without a
-      distracting interface.
+      applications. Work in 25-minute focus sessions followed by 5-minute
+      breaks, without a distracting interface.
     </p>
     <ul>
-      <li>Pause and resume sessions without losing time</li>
-      <li>Track progress in the window title and progress bar</li>
-      <li>Use optional sounds and a system tray indicator</li>
-      <li>Continue working when optional integrations are unavailable</li>
+      <li>Start, pause and reset with one click; pausing never loses time</li>
+      <li>Always-on-top window shows the time left, the current mode and a progress bar</li>
+      <li>A sound plays when focus and break periods end</li>
+      <li>Keeps accurate time, even across suspend</li>
     </ul>
   </description>
   <launchable type="desktop-id">io.github.phni.Pomodoro98.desktop</launchable>
@@ -37,6 +37,16 @@
     <color type="primary" scheme_preference="dark">#000080</color>
   </branding>
   <releases>
+    <release version="2026.10.1" date="2026-10-20">
+      <url type="details">https://github.com/phni/pomodoro98/releases/tag/v2026.10.1</url>
+      <description>
+        <p>A new look for the app icon.</p>
+        <ul>
+          <li>New pixel-art tomato icon in the app grid, dock and window.</li>
+          <li>Clearer app description.</li>
+        </ul>
+      </description>
+    </release>
     <release version="2026.10.0" date="2026-10-18">
       <url type="details">https://github.com/phni/pomodoro98/releases/tag/v2026.10.0</url>
       <description>
