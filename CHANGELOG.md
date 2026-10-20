@@ -8,10 +8,14 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+## [2026.10.1] - 2026-10-20
+
 ### Changed
 
 - New pixel-art tomato app icon in a Windows 98 window, used for the
   launcher, dock, and window; the idle window icon is a grey version.
+- The store description no longer mentions a tray icon, which the Flatpak
+  does not include.
 
 ## [2026.10.0] - 2026-10-18
 
@@ -62,6 +66,7 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 - Flatpak packaging as `io.github.phni.Pomodoro98` with desktop file, MetaInfo,
   and icons.
 
-[Unreleased]: https://github.com/phni/pomodoro98/compare/v2026.10.0...HEAD
+[Unreleased]: https://github.com/phni/pomodoro98/compare/v2026.10.1...HEAD
+[2026.10.1]: https://github.com/phni/pomodoro98/compare/v2026.10.0...v2026.10.1
 [2026.10.0]: https://github.com/phni/pomodoro98/compare/v0.1.0...v2026.10.0
 [0.1.0]: https://github.com/phni/pomodoro98/releases/tag/v0.1.0
