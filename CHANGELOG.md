@@ -8,6 +8,11 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+### Fixed
+
+- The Flatpak builds again on the Freedesktop 26.08.3 runtime, whose Python is
+  now 3.14.8.
+
 ## [2026.10.2] - 2026-10-25
 
 ### Changed
