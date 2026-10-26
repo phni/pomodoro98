@@ -60,7 +60,7 @@ modules:
         sha256: d7a146d2917eb8b5cc95276dbf0e3d03c7464d2b19c1675357857c989301dbb4
 
   # The runtime's Python has no tkinter. Build _tkinter and Lib/tkinter from the
-  # CPython release matching the runtime Python (3.14.7 in Freedesktop 26.08)
+  # CPython release matching the runtime Python (3.14.8 in Freedesktop 26.08.3)
   # against the bundled Tcl/Tk. Bump this source whenever the runtime's Python
   # version changes.
   - name: tkinter
@@ -78,8 +78,8 @@ modules:
       - cp -a Lib/tkinter /app/lib/python3.14/site-packages/
     sources:
       - type: archive
-        url: https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz
-        sha256: 3b48dac8fb59f62eaa67ac83c1eb12bda1b7a08406dd286e252c11a66be27f81
+        url: https://www.python.org/ftp/python/3.14.8/Python-3.14.8.tar.xz
+        sha256: c2215904f02b175596dc49351585104f4bc20341e1c47378b26a2c274360ce73
       - type: file
         path: flatpak/check_tkinter_source.py
 
