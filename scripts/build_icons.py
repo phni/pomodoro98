@@ -7,7 +7,7 @@ variant). PNG output needs Pillow: ``python3 -m pip install Pillow``.
 
 The icon is drawn on a grid SCALE times finer than the art: each tomato pixel
 becomes a SCALE x SCALE block, while the title-bar buttons use the finer grid
-so their bevels and glyphs stay crisp and centred.
+so they are exactly square with their glyphs centred.
 
 Run from anywhere: ``python3 scripts/build_icons.py``
 """
@@ -26,9 +26,12 @@ SCALE = 4  # fine grid units per art pixel
 MARGIN = 2  # transparent art pixels around the window on each side
 LAUNCHER_SIZES = (64, 128, 256, 512)
 
-# Title-bar buttons, in art pixels: 6 wide, 5 tall, one navy pixel apart.
-BUTTON_Y = 4
-BUTTONS = ((36, "minimize"), (43, "maximize"), (50, "close"))
+# Title-bar buttons on the fine grid, measured from the original artwork:
+# square 24x24 boxes, 3 units apart, vertically centred in the title bar.
+BUTTON_SIZE = 24
+BUTTON_BEVEL = 3  # white top/left highlight and grey bottom/right shadow
+BUTTON_TOP = 14
+BUTTONS = ((147, "minimize"), (174, "maximize"), (201, "close"))
 
 
 class Canvas:
@@ -47,22 +50,30 @@ class Canvas:
         self.fine(x0 * SCALE, y0 * SCALE, (x1 + 1) * SCALE - 1, (y1 + 1) * SCALE - 1, key)
 
 
-def draw_button(c, ax, glyph):
-    """Win98 button: white top/left edge, grey bottom/right bevel, centred black glyph."""
-    x0, y0 = ax * SCALE, BUTTON_Y * SCALE
-    w, h = 6 * SCALE, 5 * SCALE  # 24 x 20 fine units
-    c.fine(x0, y0, x0 + w - 1, y0 + h - 1, "l")
-    c.fine(x0, y0, x0 + w - 2, y0, "w")  # top highlight
-    c.fine(x0, y0, x0, y0 + h - 2, "w")  # left highlight
-    c.fine(x0 + 1, y0 + h - 2, x0 + w - 1, y0 + h - 1, "g")  # bottom bevel
-    c.fine(x0 + w - 2, y0 + 1, x0 + w - 1, y0 + h - 1, "g")  # right bevel
-    # 12 x 12 glyph box centred in the face (face is x0+1..x0+21, y0+1..y0+17).
-    gx, gy = x0 + 5, y0 + 3
+def draw_button(c, x0, glyph):
+    """Win98 button: mitred white/grey bevel and a black glyph centred in the box."""
+    n, bevel, y0 = BUTTON_SIZE, BUTTON_BEVEL, BUTTON_TOP
+    for dy in range(n):
+        for dx in range(n):
+            right, bottom = n - 1 - dx, n - 1 - dy
+            if min(dx, dy, right, bottom) >= bevel:
+                key = "l"  # face
+            elif dx < bevel and bottom < bevel:  # bottom-left corner: split on the diagonal
+                key = "w" if dx < bottom else "g"
+            elif dy < bevel and right < bevel:  # top-right corner: split on the diagonal
+                key = "w" if dy < right else "g"
+            elif dx < bevel or dy < bevel:
+                key = "w"
+            else:
+                key = "g"
+            c.px[y0 + dy][x0 + dx] = key
+    # Every glyph fills the same 12x12 box with 6 units of face on each side.
+    gx, gy = x0 + 6, y0 + 6
     if glyph == "minimize":
-        c.fine(gx, gy + 9, gx + 11, gy + 11, "k")
+        c.fine(gx, gy + 9, gx + 11, gy + 11, "k")  # bar along the bottom of the box
     elif glyph == "maximize":
         c.fine(gx, gy, gx + 11, gy + 11, "k")
-        c.fine(gx + 3, gy + 3, gx + 8, gy + 8, "l")
+        c.fine(gx + 2, gy + 2, gx + 9, gy + 9, "l")
     else:  # close: four corner squares and a centre square
         for cx, cy in ((0, 0), (8, 0), (4, 4), (0, 8), (8, 8)):
             c.fine(gx + cx, gy + cy, gx + cx + 3, gy + cy + 3, "k")
@@ -83,8 +94,8 @@ def window():
     c.art(w - 1, 1, w - 1, h - 1, "g")
     # Title bar and its buttons.
     c.art(3, 3, w - 3, 9, "n")
-    for ax, glyph in BUTTONS:
-        draw_button(c, ax, glyph)
+    for x0, glyph in BUTTONS:
+        draw_button(c, x0, glyph)
     # Sunken client area holding the tomato.
     c.art(3, 11, w - 3, 11, "g")
     c.art(3, 11, 3, h - 3, "g")
