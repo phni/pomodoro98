@@ -31,6 +31,8 @@ LAUNCHER_SIZES = (64, 128, 256, 512)
 BUTTON_SIZE = 24
 BUTTON_BEVEL = 3  # white top/left highlight and grey bottom/right shadow
 BUTTON_TOP = 14
+GLYPH = 12  # glyph box size; minimize and maximize are both this wide
+STROKE = 2  # line thickness shared by the minimize bar and maximize frame
 BUTTONS = ((147, "minimize"), (174, "maximize"), (201, "close"))
 
 
@@ -67,13 +69,14 @@ def draw_button(c, x0, glyph):
             else:
                 key = "g"
             c.px[y0 + dy][x0 + dx] = key
-    # Every glyph fills the same 12x12 box with 6 units of face on each side.
-    gx, gy = x0 + 6, y0 + 6
+    # Every glyph fills the same GLYPH x GLYPH box, centred in the button.
+    gx = gy = (n - GLYPH) // 2
+    gx, gy, end = x0 + gx, y0 + gy, GLYPH - 1
     if glyph == "minimize":
-        c.fine(gx, gy + 9, gx + 11, gy + 11, "k")  # bar along the bottom of the box
+        c.fine(gx, gy + end - STROKE + 1, gx + end, gy + end, "k")  # bar along the bottom
     elif glyph == "maximize":
-        c.fine(gx, gy, gx + 11, gy + 11, "k")
-        c.fine(gx + 2, gy + 2, gx + 9, gy + 9, "l")
+        c.fine(gx, gy, gx + end, gy + end, "k")
+        c.fine(gx + STROKE, gy + STROKE, gx + end - STROKE, gy + end - STROKE, "l")
     else:  # close: four corner squares and a centre square
         for cx, cy in ((0, 0), (8, 0), (4, 4), (0, 8), (8, 8)):
             c.fine(gx + cx, gy + cy, gx + cx + 3, gy + cy + 3, "k")
