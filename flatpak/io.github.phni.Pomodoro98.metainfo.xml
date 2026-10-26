@@ -37,6 +37,16 @@
     <color type="primary" scheme_preference="dark">#000080</color>
   </branding>
   <releases>
+    <release version="2026.10.2" date="2026-10-25">
+      <url type="details">https://github.com/phni/pomodoro98/releases/tag/v2026.10.2</url>
+      <description>
+        <p>New sounds and a sharper icon.</p>
+        <ul>
+          <li>New chimes when a focus session and a break end.</li>
+          <li>The icon is now a crisp scalable image with tidier title-bar buttons.</li>
+        </ul>
+      </description>
+    </release>
     <release version="2026.10.1" date="2026-10-20">
       <url type="details">https://github.com/phni/pomodoro98/releases/tag/v2026.10.1</url>
       <description>
