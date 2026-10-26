@@ -106,6 +106,10 @@ The existing `0.1.0` stays as the historical first release (tagged `v0.1.0`,
 R3D-58). The first CalVer release follows it; CalVer numbers always sort higher
 than `0.1.0`.
 
+> **Update (2026-10-25):** the maintainer squashed all history up to the
+> 2026.10.0 release into one initial commit and removed the `v0.1.0` tag and
+> release (R3D-81). 0.1.0 remains only as a `CHANGELOG.md` entry.
+
 Every release is a git tag `vYYYY.MM.PATCH` (e.g. `v2026.10.0`) on `main` with
 a matching `CHANGELOG.md` entry and MetaInfo `<release>` (details in the
 release process, R3D-59).

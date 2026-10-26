@@ -63,7 +63,10 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 - The unmaintained legacy `pomodoro98.py` script.
 
-## [0.1.0] - 2026-08-13
+## 0.1.0 - 2026-08-13
+
+Pre-CalVer release. Its history was folded into the 2026.10.0 initial import,
+so it has no tag or GitHub release.
 
 ### Added
 
@@ -78,5 +81,4 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 [Unreleased]: https://github.com/phni/pomodoro98/compare/v2026.10.2...HEAD
 [2026.10.2]: https://github.com/phni/pomodoro98/compare/v2026.10.1...v2026.10.2
 [2026.10.1]: https://github.com/phni/pomodoro98/compare/v2026.10.0...v2026.10.1
-[2026.10.0]: https://github.com/phni/pomodoro98/compare/v0.1.0...v2026.10.0
-[0.1.0]: https://github.com/phni/pomodoro98/releases/tag/v0.1.0
+[2026.10.0]: https://github.com/phni/pomodoro98/releases/tag/v2026.10.0
