@@ -16,8 +16,8 @@ month:
 | First release in November 2026 | `2026.11.0` |
 
 The version lives only in `src/pomodoro98/__init__.py` (`__version__`). Git tags
-add a `v` prefix: version `2026.10.0` is tag `v2026.10.0`. The pre-CalVer
-history has one release, `0.1.0` (tag `v0.1.0`).
+add a `v` prefix: version `2026.10.0` is tag `v2026.10.0`. Git history starts at
+the 2026.10.0 release; the earlier 0.1.0 has no tag (see `CHANGELOG.md`).
 
 ## 1. Prepare the release PR
 
