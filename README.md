@@ -181,9 +181,11 @@ The version is defined once, as `__version__` in `src/pomodoro98/__init__.py`.
 | Asset | Files | Origin | License |
 | --- | --- | --- | --- |
 | App and window icons | `scripts/icon_art.py`, generated `flatpak/icons/hicolor/**` and `src/pomodoro98/icons/*.png` | Pixel art by phni, first sketched with ChatGPT image generation, then traced and redrawn as code | CC0-1.0 |
+| Alert sounds | `scripts/build_sounds.py`, generated `src/pomodoro98/sounds/*.wav` | Synthesized from scratch in code (sine-wave bell tones, no samples) | CC0-1.0 |
 
-The icons are generated: edit the pixel art in `scripts/icon_art.py` and run
+The icons and sounds are generated: edit the pixel art in `scripts/icon_art.py` and run
 `python3 scripts/build_icons.py` (needs Pillow) to rewrite the SVG and PNGs.
+To change a chime, edit the notes in `scripts/build_sounds.py` and run it.
 
 ## License
 
