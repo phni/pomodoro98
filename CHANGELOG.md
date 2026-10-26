@@ -8,6 +8,11 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+### Changed
+
+- The app icon is now drawn from code, with a scalable SVG version; it looks
+  the same as before.
+
 ## [2026.10.1] - 2026-10-20
 
 ### Changed
