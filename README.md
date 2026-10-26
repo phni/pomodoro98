@@ -176,6 +176,17 @@ Report bugs and request features through the
 The version is defined once, as `__version__` in `src/pomodoro98/__init__.py`.
 `make lint` checks that the newest MetaInfo `<release>` matches it.
 
+## Credits and assets
+
+| Asset | Files | Origin | License |
+| --- | --- | --- | --- |
+| App and window icons | `scripts/icon_art.py`, generated `flatpak/icons/hicolor/**` and `src/pomodoro98/icons/*.png` | Pixel art by phni, first sketched with ChatGPT image generation, then traced and redrawn as code | CC0-1.0 |
+| Alert sounds | `scripts/build_sounds.py`, generated `src/pomodoro98/sounds/*.wav` | Synthesized from scratch in code (sine-wave bell tones, no samples) | CC0-1.0 |
+
+The icons and sounds are generated: edit the pixel art in `scripts/icon_art.py` and run
+`python3 scripts/build_icons.py` (needs Pillow) to rewrite the SVG and PNGs.
+To change a chime, edit the notes in `scripts/build_sounds.py` and run it.
+
 ## License
 
 Pomodoro98 is available under the [MIT License](LICENSE). Its SPDX identifier

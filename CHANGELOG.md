@@ -8,6 +8,13 @@ Releases after 0.1.0 use calendar versioning, `YYYY.MM.PATCH`
 
 ## [Unreleased]
 
+### Changed
+
+- New end-of-focus and end-of-break chimes, made from scratch so they can be
+  shared freely; they replace sounds of unknown origin.
+- The app icon is now drawn from code, with a scalable SVG version; it looks
+  the same as before.
+
 ## [2026.10.1] - 2026-10-20
 
 ### Changed
